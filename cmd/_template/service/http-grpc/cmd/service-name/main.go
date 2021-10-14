@@ -138,6 +138,9 @@ func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption) *grpc.Server {
 	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
 
+	// Enable latency histograms
+	grpc_prometheus.EnableHandlingTimeHistogram()
+
 	// Register prometheus metrics on gRPC
 	grpc_prometheus.Register(grpcServer)
 
