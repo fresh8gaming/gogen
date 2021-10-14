@@ -1,0 +1,31 @@
+{{ .ServiceNameUnderscore }}:
+  port: 8080
+  metricsPort: 9898
+  minReplicas: 2
+  maxReplicas: 3
+  docker:
+    image: europe-docker.pkg.dev/intrepid-honor-109516/main/{{ .Name }}-{{ .ServiceName }}
+    tag: latest
+  logLevel: warn
+
+  serviceAccount: {{ .Name }}-{{ .ServiceName }}
+  tlsEnabled: false
+
+  profiler:
+    enabled: false
+    debug: false
+
+  hpa:
+    enabled: false
+
+  pdb:
+    enabled: false
+    maxUnavailable: 1
+
+  resources:
+    limits:
+      memory: 64Mi
+      cpu: 100m
+    requests:
+      memory: 64Mi
+      cpu: 100m

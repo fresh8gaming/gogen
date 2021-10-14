@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    app.kubernetes.io/name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+    app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+    helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+  name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+  namespace: {{`{{ .Release.Namespace }}`}}
+  annotations:
+    cloud.google.com/neg: >-
+      { "exposed_ports": {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port | toString | printf "{\"%s\":{}}" }}`}}, "ingress": true}
+spec:
+  ports:
+    - name: grpc
+      port: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}
+      protocol: TCP
+      targetPort: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}
+    - name: metrics
+      port: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.metricsPort }}`}}
+      protocol: TCP
+      targetPort: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.metricsPort }}`}}
+  selector:
+    app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+  type: ClusterIP
+status:
+  loadBalancer: {}

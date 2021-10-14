@@ -1,0 +1,4 @@
+apiVersion: v2
+description: Description of service(s) within this repository
+name: {{ .Name }}
+version: 1.0.0

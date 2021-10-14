@@ -1,0 +1,23 @@
+{{`{{- if .Values.monitor }}`}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{`{{ .Release.Name }}`}}
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: {{`{{ .Release.Name }}`}}
+    app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+    app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+    helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{`{{ .Release.Namespace }}`}}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{`{{ .Release.Name }}`}}
+  endpoints:
+    - port: metrics
+      interval: 1m
+      path: /_metrics
+{{`{{- end -}}`}}

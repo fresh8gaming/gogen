@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+  namespace: {{`{{ .Release.Namespace }}`}}
+  labels:
+    app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    release: {{`{{ .Release.Name }}`}}
+    domain: {{`{{ required "A domain value is required" .Values.domain }}`}}
+    team: {{`{{ required "A team value is required" .Values.team }}`}}
+    app.kubernetes.io/name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+    app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+    helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+spec:
+{{`{{- if not .Values.`}}{{ .ServiceNameUnderscore }}{{`.hpa }}`}}
+  replicas: {{`{{ .Values.`}}{{ .ServiceNameUnderscore}}.minReplicas }}`}}
+{{`{{- end }}`}}
+  selector:
+    matchLabels:
+      app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+        release: {{`{{ .Release.Name }}`}}
+        domain: {{`{{ required "A domain value is required" .Values.domain }}`}}
+        team: {{`{{ required "A team value is required" .Values.team }}`}}
+        app.kubernetes.io/name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+        app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+        app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+        helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+    spec:
+      volumes:
+{{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled }}`}}
+        - name: certs
+          secret:
+            secretName: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}-cert-tls
+{{`{{- end }}`}}
+      serviceAccountName: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.serviceAccount }}`}}
+      nodeSelector:
+        access-scope/cloud-platform: "true"
+      terminationGracePeriodSeconds: 30
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+            topologyKey: kubernetes.io/hostname
+      containers:
+        - name: {{`{{ .Chart.Name }}`}}
+          image: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.docker.image }}`}}:{{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.docker.tag }}`}}
+          imagePullPolicy: Always
+          volumeMounts:
+{{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled }}`}}
+            - name: certs
+              mountPath: /etc/certs
+              readOnly: true
+{{`{{- end }}`}}
+          ports:
+            - name: grpc
+              containerPort: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}
+            - name: metrics
+              containerPort: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.metricsPort }}`}}
+          env:
+            - name: ENV
+              value: {{`{{ .Values.env }}`}}
+            - name: TLS_ENABLED
+              value: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled | quote }}`}}
+            - name: PROFILER_ENABLED
+              value: {{`{{ if .Values.`}}{{ .ServiceNameUnderscore }}{{`.profiler }}{{ if .Values.`}}{{ .ServiceNameUnderscore }}{{`.profiler.enabled }}{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.profiler.enabled | quote }}{{ end }}{{ else }}{{ .Values.profiler.enabled | quote }}{{ end }}`}}
+            - name: PROFILER_DEBUG
+              value: {{`{{ if .Values.`}}{{ .ServiceNameUnderscore }}{{`.profiler }}{{ if .Values.`}}{{ .ServiceNameUnderscore }}{{`.profiler.debug }}{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.profiler.debug | quote }}{{ end }}{{ else }}{{ .Values.profiler.debug | quote }}{{ end }}`}}
+            - name: LOG_LEVEL
+              value: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.logLevel | quote }}`}}
+            - name: GCP_PROJECT
+              value: {{`{{ .Values.gcpProject }}`}}
+            - name: JAEGER_AGENT_HOST
+              value: {{`{{ .Values.trace.host }}`}}
+            - name: JAEGER_AGENT_PORT
+              value: {{`{{ .Values.trace.port | quote }}`}}
+            - name: JAEGER_SAMPLER_PARAM
+              value: {{`{{ .Values.trace.sampleRate | quote}}`}}
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled }}"-tls", "-tls-no-verify",{{- end }} "-addr=:{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}"]
+            initialDelaySeconds: 5
+          readinessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled }}"-tls", "-tls-no-verify",{{- end }} "-addr=:{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}"]
+            initialDelaySeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            capabilities:
+              drop:
+                - all
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          resources:
+{{`{{ toYaml .Values.`}}{{ .ServiceNameUnderscore }}{{`.resources | indent 12 }}`}}
+    {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.nodeSelector }}`}}
+      nodeSelector:
+{{`{{ toYaml .Values.`}}{{ .ServiceNameUnderscore }}{{`.nodeSelector | indent 8 }}`}}
+    {{`{{- end }}`}}
+    {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tolerations }}`}}
+      tolerations:
+{{`{{ toYaml .Values.`}}{{ .ServiceNameUnderscore }}{{`.tolerations | indent 8 }}`}}
+    {{`{{- end }}`}}

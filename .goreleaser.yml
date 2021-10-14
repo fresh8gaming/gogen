@@ -1,0 +1,19 @@
+release:
+  prerelease: auto
+
+changelog:
+  use: github
+
+announce:
+  # Skip prerelease
+  skip: '{{ne .Prerelease ""}}'
+
+  slack:
+    # Whether its enabled or not.
+    # Defaults to false.
+    enabled: true
+
+    # The name of the channel that the user selected as a destination for webhook messages.
+    channel: '#dep-engineering'
+
+    message_template: "{{ .ProjectName }} {{ .Tag }} is now available! <http://github.com/fresh8gaming/{{ .ProjectName }}/releases/tag/{{ .Tag }}|*Check it out!*>"

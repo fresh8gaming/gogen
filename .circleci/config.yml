@@ -1,0 +1,88 @@
+# .circleci/config.yml
+version: 2.1
+
+workflows:
+  main:
+    jobs:
+      - install-tools
+      - test:
+          requires:
+            - install-tools
+      - lint:
+          requires:
+            - install-tools
+
+  release:
+    jobs:
+      - install-tools:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      - test:
+          requires:
+            - install-tools
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      - lint:
+          requires:
+            - install-tools
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      - release:
+          # Only run this job on git tag pushes
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+          context:
+            - fresh8bot
+            - slack-app
+          requires:
+            - test
+            - lint
+
+jobs:
+  release:
+    docker:
+      - image: cimg/go:1.17
+    steps:
+      - checkout
+      - run: curl -sL https://git.io/goreleaser | bash
+
+  install-tools:
+    docker:
+      - image: cimg/go:1.17
+    steps:
+      - checkout
+      - run: make install-tools
+      - persist_to_workspace:
+          root: .
+          paths:
+            - bin
+
+  test:
+    docker:
+      - image: cimg/go:1.17
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: make test
+
+  lint:
+    docker:
+      - image: cimg/go:1.17
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: make lint

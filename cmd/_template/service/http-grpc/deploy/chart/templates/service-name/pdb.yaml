@@ -1,0 +1,16 @@
+{{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.pdb.enabled }}`}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+  labels:
+    app.kubernetes.io/name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+    app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+    helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+spec:
+  maxUnavailable: {{`{{ required "A max unavailable value is required for PDB" .Values.`}}{{ .ServiceNameUnderscore }}{{`.pdb.maxUnavailable }}`}}
+  selector:
+    matchLabels:
+      app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+{{`{{- end -}}`}}
