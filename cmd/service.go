@@ -36,7 +36,7 @@ func GetServiceCmd() (*cobra.Command, error) {
 		Use:   "cron",
 		Short: "",
 		Long:  "",
-		Run:   runServiceCmd(),
+		Run:   runCronCmd(),
 	}
 
 	var err error
