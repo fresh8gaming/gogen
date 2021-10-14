@@ -24,7 +24,7 @@ curl -LO https://github.com/fresh8gaming/gogen/releases/download/${tag}/${filena
 tar xzf ${filename}
 rm ${filename}
 
-case family in
+case $family in
   'linux')
     mv ./gogen ~/.local/bin
     ;;
@@ -32,4 +32,7 @@ case family in
     sudo mv ./gogen /usr/local/bin
     ;;
   *)
+  echo "Sorry, you'll need to move the gogen binary manually."
+  exit 1
+    ;;
 esac
