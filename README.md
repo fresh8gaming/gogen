@@ -7,13 +7,13 @@ Monorepo and service generator for Golang projects.
 ### Linux / Mac
 
 ```
-curl -fsSL https://raw.githubusercontent.com/fresh8gaming/gogen/master/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh | sh
 ```
 
 Or
 
 ```
-wget -q https://raw.githubusercontent.com/fresh8gaming/gogen/master/install.sh -O- | sh
+wget -q https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh -O- | sh
 ```
 
 ## Usage
