@@ -1,5 +1,4 @@
 case $(uname -sm) in
-  'Linux x86')
   'Linux x86_64')
     os='linux_amd64'
     family='linux'
