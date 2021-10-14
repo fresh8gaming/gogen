@@ -16,8 +16,11 @@ install-tools:
 	@echo Installing tools from tools.go
 	@cat tools/tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
 
-generate-proto:
+buf-generate:
 	buf generate
+
+buf-mod-update:
+	buf mod update
 
 check-proto:
 	buf breaking --against '.git#branch=trunk'

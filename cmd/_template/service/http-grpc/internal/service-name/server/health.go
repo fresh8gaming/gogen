@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	healthPB "google.golang.org/grpc/health/grpc_health_v1"
+	healthPB "github.com/{{ .Org }}/{{ .Name }}/proto/grpc/health/v1"
 )
 
 type HealthServer struct {

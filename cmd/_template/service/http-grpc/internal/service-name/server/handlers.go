@@ -3,13 +3,14 @@ package server
 import (
 	"context"
 
+	healthPB "github.com/{{ .Org }}/{{ .Name }}/proto/grpc/health/v1"
+
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
-	healthPB "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func RegisterHandlers(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
-	return nil
+	return healthPB.RegisterHealthHandlerFromEndpoint(ctx, mux, endpoint, opts)
 }
 
 func RegisterServices(grpcServer grpc.ServiceRegistrar) {

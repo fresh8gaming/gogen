@@ -84,6 +84,8 @@ func createHTTPGRPCService(args []string) {
 	fmt.Println(blue("go fmt ./..."))
 	fmt.Println(blue("go mod tidy"))
 	fmt.Println(blue("go mod vendor"))
+	fmt.Println(blue("make buf-mod-update"))
+	fmt.Println(blue("make buf-generate"))
 	fmt.Println()
 
 	if updatedArgo {
@@ -96,7 +98,11 @@ func createHTTPGRPCService(args []string) {
 		fmt.Println()
 	}
 
-	fmt.Printf("%s %s", yellow("Warning:"), "CircleCI is currently not set up as part of this system, and will need to be completed manually.")
+	fmt.Printf(
+		"%s %s",
+		yellow("Warning:"),
+		"CircleCI is currently not set up as part of this system, and will need to be completed manually.",
+	)
 	fmt.Println()
 }
 
