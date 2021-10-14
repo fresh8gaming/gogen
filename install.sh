@@ -1,14 +1,15 @@
 case $(uname -sm) in
   'Linux x86')
-    os='linux-x86'
-    family='linux'
-    ;;
   'Linux x86_64')
-    os='linux-x86_64'
+    os='linux_amd64'
     family='linux'
     ;;
   'Darwin x86' | 'Darwin x86_64')
-    os='osx'
+    os='darwin_amd64'
+    family='mac'
+    ;;
+  'Darwin arm64')
+    os='darwin_arm64'
     family='mac'
     ;;
   *)
@@ -18,7 +19,7 @@ case $(uname -sm) in
 esac
 
 tag=$(basename $(curl -fs -o/dev/null -w %{redirect_url} https://github.com/fresh8gaming/gogen/releases/latest))
-filename="gogen-${tag#v}-${os}.tar.gz"
+filename="gogen_${tag#v}_${os}.tar.gz"
 
 curl -LO https://github.com/fresh8gaming/gogen/releases/download/${tag}/${filename}
 tar xzf ${filename}
