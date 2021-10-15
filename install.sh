@@ -1,3 +1,4 @@
+#!/bin/bash
 case $(uname -sm) in
   'Linux x86_64')
     os='linux_amd64'
@@ -17,7 +18,12 @@ case $(uname -sm) in
     ;;
 esac
 
-tag=$(basename $(curl -fs -o/dev/null -w %{redirect_url} https://github.com/fresh8gaming/gogen/releases/latest))
+if [[ -z "${TAG}" ]]; then
+  tag=$(basename $(curl -fs -o/dev/null -w %{redirect_url} https://github.com/fresh8gaming/gogen/releases/latest))
+else
+  tag=${TAG}
+fi
+
 filename="gogen_${tag#v}_${os}.tar.gz"
 
 curl -LO https://github.com/fresh8gaming/gogen/releases/download/${tag}/${filename}
