@@ -1,0 +1,41 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  labels:
+    app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    env: {{`{{ .Values.env }}`}}
+    release: {{`{{ .Release.Name }}`}}
+    domain: {{`{{ required "A domain value is required" .Values.domain }}`}}
+    team: {{`{{ required "A team value is required" .Values.team }}`}}
+    app.kubernetes.io/name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+    app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+    helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+  name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+  namespace: on-call
+spec:
+  suspend: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.suspend }}`}}
+  schedule: "{{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.schedule }}`}}"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+            env: {{`{{ .Values.env }}`}}
+            release: {{`{{ .Release.Name }}`}}
+            domain: {{`{{ required "A domain value is required" .Values.domain }}`}}
+            team: {{`{{ required "A team value is required" .Values.team }}`}}
+            app.kubernetes.io/name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+            app.kubernetes.io/instance: {{`{{ $.Release.Name }}`}}
+            app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
+            helm.sh/chart: {{`{{ include "this.chart" . }}`}}
+        spec:
+          serviceAccountName: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.serviceAccount }}`}}
+          containers:
+            - name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+              image: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.docker.image }}`}}:{{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.docker.tag }}`}}
+              env:
+                - name: ENV
+                  value: {{`{{ .Values.env }}`}}
+          restartPolicy: OnFailure

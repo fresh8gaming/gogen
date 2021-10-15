@@ -1,0 +1,25 @@
+{{ .ServiceNameUnderscore }}:
+  port: 8080
+  metricsPort: 9898
+
+  docker:
+    image: europe-docker.pkg.dev/intrepid-honor-109516/main/{{ .Name }}-{{ .ServiceName }}
+    tag: latest
+  logLevel: warn
+
+  serviceAccount: {{ .Name }}-{{ .ServiceName }}
+
+  schedule: "0 9 * * *"
+  suspend: false
+
+  profiler:
+    enabled: false
+    debug: false
+
+  resources:
+    limits:
+      memory: 64Mi
+      cpu: 100m
+    requests:
+      memory: 64Mi
+      cpu: 100m

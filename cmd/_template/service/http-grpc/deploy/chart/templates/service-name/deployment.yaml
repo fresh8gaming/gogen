@@ -5,6 +5,7 @@ metadata:
   namespace: {{`{{ .Release.Namespace }}`}}
   labels:
     app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+    env: {{`{{ .Values.env }}`}}
     release: {{`{{ .Release.Name }}`}}
     domain: {{`{{ required "A domain value is required" .Values.domain }}`}}
     team: {{`{{ required "A team value is required" .Values.team }}`}}
@@ -28,6 +29,7 @@ spec:
     metadata:
       labels:
         app: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
+        env: {{`{{ .Values.env }}`}}
         release: {{`{{ .Release.Name }}`}}
         domain: {{`{{ required "A domain value is required" .Values.domain }}`}}
         team: {{`{{ required "A team value is required" .Values.team }}`}}
