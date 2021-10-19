@@ -70,6 +70,8 @@ func createHTTPGRPCService(args []string) {
 
 	fmt.Printf("Creating %s in %s\n", blue(service.ServiceName), absPath)
 
+	updateMetadata(absPath, service)
+
 	copyTemplates(absPath, HTTPGRPCTemplates, service, httpGRPCContent, HTTPGRPCTemplates, func(path string) string {
 		return strings.ReplaceAll(path, "service-name", service.ServiceName)
 	})
@@ -140,5 +142,48 @@ func updateArgoApplication(argoApplicationFilePath string, service Service) bool
 	util.Fatal(err)
 
 	util.Fatal(ioutil.WriteFile(argoApplicationFilePath, editedArgoApplicationFileByte, os.ModePerm))
+	return true
+}
+
+
+func updateMetadata(absPath string, service Service) bool {
+	fmt.Println("Appending to .metadata.yml")
+	metadataFilePath := filepath.Join(absPath, ".metadata.yml")
+
+	metadataFileByte, err := ioutil.ReadFile(metadataFilePath)
+	util.Fatal(err)
+
+	var v []map[string]string
+	err = yaml.Unmarshal(metadataFileByte, &v)
+	util.Fatal(err)
+
+	existingServices, err := dyno.GetSlice(v, "services")
+	util.Fatal(err)
+
+	exists := false
+	for _, existingService := range existingServices {
+		if service.Name == existingService["name"] {
+			exists = true
+		}
+	}
+
+	if exists {
+		return false
+	}
+
+	newService := map[string]interface{}{
+		"ciEnabled": true,
+		"name": service.Name,
+		"type": "grpc",
+	}
+
+	// Only edit the file if the value doesn't exist already
+	err = dyno.Append(v, newService, "services")
+	util.Fatal(err)
+
+	editedMetadataFileByte, err := yaml.Marshal(v)
+	util.Fatal(err)
+
+	util.Fatal(ioutil.WriteFile(metadataFilePath, editedMetadataFileByte, os.ModePerm))
 	return true
 }

@@ -3,3 +3,5 @@ licensed: true
 name: {{ .Name }}
 team: {{ .Team }}
 domain: {{ .Domain }}
+
+services: []
