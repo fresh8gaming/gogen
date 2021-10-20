@@ -70,7 +70,7 @@ func createHTTPGRPCService(args []string) {
 
 	fmt.Printf("Creating %s in %s\n", blue(service.ServiceName), absPath)
 
-	updateMetadata(absPath, service)
+	updateMetadata(absPath, service, "http-grpc")
 
 	copyTemplates(absPath, HTTPGRPCTemplates, service, httpGRPCContent, HTTPGRPCTemplates, func(path string) string {
 		return strings.ReplaceAll(path, "service-name", service.ServiceName)
@@ -145,45 +145,51 @@ func updateArgoApplication(argoApplicationFilePath string, service Service) bool
 	return true
 }
 
-
-func updateMetadata(absPath string, service Service) bool {
+func updateMetadata(absPath string, service Service, serviceType string) {
 	fmt.Println("Appending to .metadata.yml")
 	metadataFilePath := filepath.Join(absPath, ".metadata.yml")
 
 	metadataFileByte, err := ioutil.ReadFile(metadataFilePath)
 	util.Fatal(err)
 
-	var v []map[string]string
-	err = yaml.Unmarshal(metadataFileByte, &v)
-	util.Fatal(err)
-
-	existingServices, err := dyno.GetSlice(v, "services")
+	var metadata Metadata
+	err = yaml.Unmarshal(metadataFileByte, &metadata)
 	util.Fatal(err)
 
 	exists := false
-	for _, existingService := range existingServices {
-		if service.Name == existingService["name"] {
+	for _, existingService := range metadata.Services {
+		if service.ServiceName == existingService.Name {
 			exists = true
 		}
 	}
 
 	if exists {
-		return false
+		return
 	}
 
-	newService := map[string]interface{}{
-		"ciEnabled": true,
-		"name": service.Name,
-		"type": "grpc",
+	newService := MetadataService{
+		Name:      service.ServiceName,
+		Type:      serviceType,
+		CIEnabled: true,
 	}
 
-	// Only edit the file if the value doesn't exist already
-	err = dyno.Append(v, newService, "services")
-	util.Fatal(err)
+	metadata.Services = append(metadata.Services, newService)
 
-	editedMetadataFileByte, err := yaml.Marshal(v)
+	editedMetadataFileByte, err := yaml.Marshal(metadata)
 	util.Fatal(err)
 
 	util.Fatal(ioutil.WriteFile(metadataFilePath, editedMetadataFileByte, os.ModePerm))
-	return true
+}
+
+type Metadata struct {
+	Name     string            `yaml:"name"`
+	Team     string            `yaml:"team"`
+	Domain   string            `yaml:"domain"`
+	Services []MetadataService `yaml:"services"`
+}
+
+type MetadataService struct {
+	Name      string `yaml:"name"`
+	Type      string `yaml:"type"`
+	CIEnabled bool   `yaml:"ciEnabled"`
 }

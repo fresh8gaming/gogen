@@ -53,6 +53,8 @@ func createCronService(args []string) {
 
 	fmt.Printf("Creating %s in %s\n", blue(service.ServiceName), absPath)
 
+	updateMetadata(absPath, service, "cron")
+
 	copyTemplates(absPath, CronTemplates, service, cronContent, CronTemplates, func(path string) string {
 		return strings.ReplaceAll(path, "service-name", service.ServiceName)
 	})
