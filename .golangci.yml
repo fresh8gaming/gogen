@@ -5,7 +5,7 @@ linters-settings:
     lines: 100
     statements: 50
   gci:
-    local-prefixes: github.com/fresh8gaming/{{ .Name }}
+    local-prefixes: github.com/fresh8gaming/gogen
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -25,7 +25,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/fresh8gaming/{{ .Name }}
+    local-prefixes: github.com/fresh8gaming/gogen
   golint:
     min-confidence: 0
   gomnd:

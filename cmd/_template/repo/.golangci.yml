@@ -41,6 +41,9 @@ linters-settings:
     suggest-new: true
   misspell:
     locale: UK
+    ignore-words:
+      - color
+      - colors
   nolintlint:
     allow-leading-space: true # don't require machine-readable nolint directives (i.e. with no leading space)
     allow-unused: false # report any unused nolint directives
@@ -79,7 +82,7 @@ linters:
     - nolintlint
     - prealloc
     - rowserrcheck
-    - scopelint
+    - exportloopref
     - staticcheck
     - structcheck
     - stylecheck
@@ -92,7 +95,7 @@ linters:
     - whitespace
     - funlen
     - gocyclo
-    - golint
+    - revive
     - gocognit
     - godox
     - nestif
@@ -127,4 +130,4 @@ run:
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 service:
-  golangci-lint-version: 1.32.0 # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.42.1 # use the fixed version to not introduce new linters unexpectedly
