@@ -99,13 +99,6 @@ func createHTTPGRPCService(args []string) {
 		fmt.Println("It is recommended you commit and push at this point.")
 		fmt.Println()
 	}
-
-	fmt.Printf(
-		"%s %s",
-		yellow("Warning:"),
-		"CircleCI is currently not set up as part of this system, and will need to be completed manually.",
-	)
-	fmt.Println()
 }
 
 func updateArgoApplication(argoApplicationFilePath string, service Service) bool {

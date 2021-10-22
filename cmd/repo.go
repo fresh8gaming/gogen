@@ -102,13 +102,6 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		fmt.Println(blue("go mod vendor"))
 		fmt.Println(blue("make install-tools"))
 		fmt.Println()
-
-		fmt.Printf(
-			"%s %s",
-			yellow("Warning:"),
-			"CircleCI is currently not set up as part of this system, and will need to be completed manually.",
-		)
-		fmt.Println()
 	}
 }
 
