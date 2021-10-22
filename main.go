@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/fresh8gaming/gogen/cmd"
+
 	"github.com/spf13/cobra"
 )
 

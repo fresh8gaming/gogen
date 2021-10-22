@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/fresh8gaming/gogen/internal/util"
+
 	"github.com/spf13/cobra"
 )
 
