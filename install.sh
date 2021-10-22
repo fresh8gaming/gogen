@@ -33,9 +33,11 @@ rm ${filename}
 case $family in
   'linux')
     mv ./gogen ~/.local/bin
+    chmod +x ~/.local/bin
     ;;
   'mac')
     sudo mv ./gogen /usr/local/bin
+    sudo chmod +x /usr/local/bin
     ;;
   *)
   echo "Sorry, you'll need to move the gogen binary manually."
