@@ -6,6 +6,10 @@ import (
 	"strings"
 )
 
+const (
+	base10 = 10
+)
+
 // GetenvString takes an envvar name, gets the value, and returns it if not blank.
 // If blank, it will return the provided default value.
 func GetenvString(k, defaultValue string) string {
@@ -35,7 +39,7 @@ func GetenvInt(k string, defaultValue int) int {
 // If blank, it will return the provided default value.
 func GetenvInt64(k string, defaultValue int64) int64 {
 	valueString := os.Getenv(k)
-	value, err := strconv.ParseInt(valueString, 10, 64)
+	value, err := strconv.ParseInt(valueString, base10, strconv.IntSize)
 
 	if err != nil {
 		return defaultValue
