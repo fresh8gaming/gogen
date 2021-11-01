@@ -4,6 +4,17 @@ release:
 changelog:
   use: github
 
+  header: |
+    ## Released {{ .Date }}
+
+    Welcome to this new release! Get installing :D
+
+    ```sh
+    curl -fsSL https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh | bash
+    wget -q https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh -O- | bash
+    ```
+
+
 announce:
   # Skip prerelease
   skip: '{{ne .Prerelease ""}}'
@@ -16,4 +27,6 @@ announce:
     # The name of the channel that the user selected as a destination for webhook messages.
     channel: '#dep-engineering'
 
-    message_template: "{{ .ProjectName }} {{ .Tag }} is now available! <http://github.com/fresh8gaming/{{ .ProjectName }}/releases/tag/{{ .Tag }}|*Check it out!*>"
+    message_template: |
+      {{ .ProjectName }} {{ .Tag }} is now available! <http://github.com/fresh8gaming/{{ .ProjectName }}/releases/tag/{{ .Tag }}|*Check it out!*>
+      ```curl -fsSL https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh | bash```
