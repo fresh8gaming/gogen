@@ -15,7 +15,7 @@ metadata:
     helm.sh/chart: {{`{{ include "this.chart" . }}`}}
 spec:
 {{`{{- if not .Values.`}}{{ .ServiceNameUnderscore }}{{`.hpa.enabled }}`}}
-  replicas: {{`{{ .Values.`}}{{ .ServiceNameUnderscore}}.minReplicas }}`}}
+  replicas: {{`{{ .Values.`}}{{ .ServiceNameUnderscore}}.minReplicas }}
 {{`{{- end }}`}}
   selector:
     matchLabels:
