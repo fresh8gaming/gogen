@@ -73,7 +73,9 @@ func createHTTPGRPCService(args []string) {
 	updateMetadata(absPath, service, "http-grpc")
 
 	copyTemplates(absPath, HTTPGRPCTemplates, service, httpGRPCContent, HTTPGRPCTemplates, func(path string) string {
-		return strings.ReplaceAll(path, "service-name", service.ServiceName)
+		replaced := strings.ReplaceAll(path, "service-name", service.ServiceName)
+		replaced = strings.ReplaceAll(replaced, "service_name", service.ServiceNameUnderscore)
+		return replaced
 	})
 
 	updatedArgo := updateArgoApplication(argoApplicationFilePath, service)

@@ -57,7 +57,9 @@ func createCronService(args []string) {
 	updateMetadata(absPath, service, "cron")
 
 	copyTemplates(absPath, CronTemplates, service, cronContent, CronTemplates, func(path string) string {
-		return strings.ReplaceAll(path, "service-name", service.ServiceName)
+		replaced := strings.ReplaceAll(path, "service-name", service.ServiceName)
+		replaced = strings.ReplaceAll(replaced, "service_name", service.ServiceNameUnderscore)
+		return replaced
 	})
 
 	updatedArgo := updateArgoApplication(argoApplicationFilePath, service)

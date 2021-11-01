@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/fresh8gaming/{{.Name}}/proto/fresh8/{{.Name}}/{{.ServiceNameUnderscore}}/v1";
+
+package fresh8.{{.ServiceNameUnderscore}}.v1;
+
+// The greeting service definition.
+service GreeterService {
+  // Sends a greeting
+  rpc SayHello (SayHelloRequest) returns (SayHelloResponse) {}
+}
+
+// The request message containing the user's name.
+message SayHelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message SayHelloResponse {
+  string message = 1;
+}
