@@ -1,9 +1,6 @@
 release:
   prerelease: auto
 
-changelog:
-  use: github
-
   header: |
     ## Released {{ .Date }}
 
@@ -14,6 +11,8 @@ changelog:
     wget -q https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh -O- | bash
     ```
 
+changelog:
+  use: github
 
 announce:
   # Skip prerelease
