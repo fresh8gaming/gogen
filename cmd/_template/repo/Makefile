@@ -21,6 +21,9 @@ buf-generate:
 buf-mod-update:
 	buf mod update
 
+buf-lint:
+	buf lint
+
 check-proto:
 	buf breaking --against '.git#branch=trunk'
 
