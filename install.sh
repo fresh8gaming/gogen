@@ -32,8 +32,8 @@ rm ${filename}
 
 case $family in
   'linux')
-    mv ./gogen ~/.local/bin
-    chmod +x ~/.local/bin
+    sudo mv ./gogen /usr/local/bin
+    sudo chmod +x /usr/local/bin
     ;;
   'mac')
     sudo mv ./gogen /usr/local/bin
