@@ -42,6 +42,8 @@ func main() {
 	opts := getGRPCServerOpts(logger, tracer)
 	grpcServer := getGRPCServer(logger, opts)
 
+	setupMetrics(grpcServer)
+
 	metrics.StartServer()
 
 	ctx := context.Background()
@@ -138,16 +140,20 @@ func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption) *grpc.Server {
 	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
 
-	// Enable latency histograms
-	grpc_prometheus.EnableHandlingTimeHistogram()
-
-	// Register prometheus metrics on gRPC
-	grpc_prometheus.Register(grpcServer)
-
 	// Switch gRPC logger for Zap
 	grpc_zap.ReplaceGrpcLoggerV2(logger.WithOptions(zap.IncreaseLevel(zap.WarnLevel)))
 
 	return grpcServer
+}
+
+func setupMetrics(grpcServer *grpc.Server) {
+	// Enable latency histograms
+	grpc_prometheus.EnableHandlingTimeHistogram()
+	grpc_prometheus.EnableClientHandlingTimeHistogram()
+
+	// Register prometheus metrics on gRPC
+	// grpc_prometheus.Register(grpcServer)
+	grpc_prometheus.DefaultServerMetrics.InitializeMetrics(grpcServer)
 }
 
 func headerMatcher(key string) (string, bool) {
