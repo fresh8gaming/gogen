@@ -98,7 +98,7 @@ spec:
             initialDelaySeconds: 5
           readinessProbe:
             exec:
-              command: ["/bin/grpc_health_probe", {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled }}"-tls", "-tls-no-verify",{{- end }} "-addr=:{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}"]
+              command: ["/bin/grpc_health_probe", {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.tlsEnabled }}"-tls", "-tls-no-verify",{{- end }} "-addr=:{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.port }}`}}", "-service=ready"]
             initialDelaySeconds: 5
           securityContext:
             allowPrivilegeEscalation: false
