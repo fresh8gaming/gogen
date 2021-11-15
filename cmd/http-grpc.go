@@ -26,6 +26,7 @@ type Service struct {
 	Org                   string
 	ServiceName           string
 	ServiceNameUnderscore string
+	ServiceNameProto      string
 }
 
 func runHTTPCmd() func(cmd *cobra.Command, args []string) {
@@ -66,6 +67,7 @@ func createHTTPGRPCService(args []string) {
 		Org:                   Org,
 		ServiceName:           ServiceName,
 		ServiceNameUnderscore: strings.ReplaceAll(ServiceName, "-", "_"),
+		ServiceNameProto:      strings.ReplaceAll(strings.ReplaceAll(ServiceName, "_", ""), "-", ""),
 	}
 
 	fmt.Printf("Creating %s in %s\n", blue(service.ServiceName), absPath)

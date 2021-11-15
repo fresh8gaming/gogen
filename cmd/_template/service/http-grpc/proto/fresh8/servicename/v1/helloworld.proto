@@ -1,8 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/fresh8gaming/{{.Name}}/proto/fresh8/{{.Name}}/{{.ServiceNameUnderscore}}/v1";
-
-package fresh8.{{.ServiceNameUnderscore}}.v1;
+package fresh8.{{.ServiceNameProto}}.v1;
 
 // The greeting service definition.
 service GreeterService {
