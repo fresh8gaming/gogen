@@ -101,6 +101,7 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		fmt.Println(blue("go mod tidy"))
 		fmt.Println(blue("go mod vendor"))
 		fmt.Println(blue("make install-tools"))
+		fmt.Println(blue("./bin/buf beta registry repository create buf.build/%s/%s --visibility private", repo.Org, repo.Name))
 		fmt.Println()
 	}
 }
