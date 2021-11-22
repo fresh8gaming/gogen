@@ -45,7 +45,7 @@ func createCronService(args []string) {
 		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
 	}
 
-	service := Service{
+	service := &Service{
 		Name:                  getName(Name, absPath),
 		Org:                   Org,
 		ServiceName:           ServiceName,

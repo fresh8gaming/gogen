@@ -3,7 +3,6 @@ package cmd
 import (
 	"embed"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -62,7 +61,7 @@ func createHTTPGRPCService(args []string) {
 		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
 	}
 
-	service := Service{
+	service := &Service{
 		Name:                  getName(Name, absPath),
 		Org:                   Org,
 		ServiceName:           ServiceName,
@@ -105,12 +104,12 @@ func createHTTPGRPCService(args []string) {
 	}
 }
 
-func updateArgoApplication(argoApplicationFilePath string, service Service) bool {
+func updateArgoApplication(argoApplicationFilePath string, service *Service) bool {
 	valuesFilePath := fmt.Sprintf("values/%s.yaml", service.ServiceName)
 
 	fmt.Printf("Appending %s to deploy/argocd/application.yaml\n", blue(valuesFilePath))
 
-	argoApplicationFileByte, err := ioutil.ReadFile(argoApplicationFilePath)
+	argoApplicationFileByte, err := os.ReadFile(argoApplicationFilePath)
 	util.Fatal(err)
 
 	var v interface{}
@@ -138,15 +137,15 @@ func updateArgoApplication(argoApplicationFilePath string, service Service) bool
 	editedArgoApplicationFileByte, err := yaml.Marshal(v)
 	util.Fatal(err)
 
-	util.Fatal(ioutil.WriteFile(argoApplicationFilePath, editedArgoApplicationFileByte, os.ModePerm))
+	util.Fatal(os.WriteFile(argoApplicationFilePath, editedArgoApplicationFileByte, os.ModePerm))
 	return true
 }
 
-func updateMetadata(absPath string, service Service, serviceType string) {
+func updateMetadata(absPath string, service *Service, serviceType string) {
 	fmt.Println("Appending to .metadata.yml")
 	metadataFilePath := filepath.Join(absPath, ".metadata.yml")
 
-	metadataFileByte, err := ioutil.ReadFile(metadataFilePath)
+	metadataFileByte, err := os.ReadFile(metadataFilePath)
 	util.Fatal(err)
 
 	var metadata Metadata
@@ -175,7 +174,7 @@ func updateMetadata(absPath string, service Service, serviceType string) {
 	editedMetadataFileByte, err := yaml.Marshal(metadata)
 	util.Fatal(err)
 
-	util.Fatal(ioutil.WriteFile(metadataFilePath, editedMetadataFileByte, os.ModePerm))
+	util.Fatal(os.WriteFile(metadataFilePath, editedMetadataFileByte, os.ModePerm))
 }
 
 type Metadata struct {

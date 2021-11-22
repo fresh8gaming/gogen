@@ -78,7 +78,7 @@ linters:
     - nolintlint
     - prealloc
     - rowserrcheck
-    - scopelint
+    - exportloopref
     - staticcheck
     - structcheck
     - stylecheck
@@ -91,7 +91,7 @@ linters:
     - whitespace
     - funlen
     - gocyclo
-    - golint
+    - revive
     - gocognit
     - godox
     - nestif
@@ -127,4 +127,4 @@ run:
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 service:
-  golangci-lint-version: 1.32.0 # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.43.0 # use the fixed version to not introduce new linters unexpectedly
