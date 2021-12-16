@@ -12,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{`{{ $.Release.Service }}`}}
     helm.sh/chart: {{`{{ include "this.chart" . }}`}}
   name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
-  namespace: { .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   suspend: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.suspend }}`}}
   schedule: "{{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.schedule }}`}}"
