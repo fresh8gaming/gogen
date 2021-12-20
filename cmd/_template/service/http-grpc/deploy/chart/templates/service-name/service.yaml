@@ -11,7 +11,7 @@ metadata:
   namespace: {{`{{ .Release.Namespace }}`}}
   annotations:
     cloud.google.com/neg: >-
-      {{`{{ printf "{\"exposed_ports\": {\"%s\":{\"name\":\"%s-`}}{{ .ServiceName }}{{`\"}}}" (toString $.Values.`}}{{.ServiceNameUnderscore}}{{`.port) $.Release.Name}}`}}`
+      {{`{{ printf "{\"exposed_ports\": {\"%s\":{\"name\":\"%s-`}}{{ .ServiceName }}{{`\"}}}" (toString $.Values.`}}{{.ServiceNameUnderscore}}{{`.port) $.Release.Name}}`}}
 spec:
   ports:
     - name: grpc
