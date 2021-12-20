@@ -17,5 +17,5 @@ func RegisterServices(grpcServer grpc.ServiceRegistrar) {
 	healthServer := health.NewServer()
 	healthPB.RegisterHealthServer(grpcServer, healthServer)
 	// should possibly use full "service" name here but health will do
-	healthServer.SetServingStatus("health", healthPB.HealthCheckResponse_SERVING)
+	healthServer.SetServingStatus("ready", healthPB.HealthCheckResponse_SERVING)
 }
