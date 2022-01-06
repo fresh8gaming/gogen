@@ -99,6 +99,7 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		fmt.Printf(blue("cd %s\n"), absPath)
 		fmt.Printf(blue("go mod init github.com/fresh8gaming/%s\n"), repo.Name)
 		fmt.Println(blue("go mod tidy"))
+		fmt.Println(blue("go get github.com/bufbuild/buf@v1.0.0-rc10"))
 		fmt.Println(blue("go mod vendor"))
 		fmt.Println(blue("make install-tools"))
 		fmt.Println()
