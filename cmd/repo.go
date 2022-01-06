@@ -101,7 +101,12 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		fmt.Println(blue("go mod tidy"))
 		fmt.Println(blue("go mod vendor"))
 		fmt.Println(blue("make install-tools"))
-		fmt.Println(blue("./bin/buf beta registry repository create buf.build/%s/%s --visibility private", repo.Org, repo.Name))
+		fmt.Println()
+		fmt.Println(yellow("Ensure that you are logged into the buf registry:"))
+		fmt.Println(blue("./bin/buf login"))
+		fmt.Println()
+		fmt.Println(yellow("Register the service with buf registry:"))
+		fmt.Printf(blue("./bin/buf beta registry repository create buf.build/%s/%s --visibility private\n"), repo.Org, repo.Name)
 		fmt.Println()
 	}
 }
