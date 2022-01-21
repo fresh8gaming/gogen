@@ -46,10 +46,16 @@ func main() {
 
 	metrics.StartServer()
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	go func() {
+		c := make(chan os.Signal, 1) // we need to reserve to buffer size 1, so the notifier are not blocked
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+		<-c
+		cancel()
+	}()
 
 	mux := runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(headerMatcher))
 	httpServerEndpoint := fmt.Sprintf("0.0.0.0:%s", config.Get().Port)
@@ -79,13 +85,25 @@ func main() {
 
 	logger.Info(fmt.Sprintf("starting grpc/http up on %s", httpServerEndpoint))
 
-	conn, err := net.Listen("tcp", httpServerEndpoint)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
+	g.Go(func() error {
+		g, gCtx := errgroup.WithContext(ctx)
+		conn, err := net.Listen("tcp", httpServerEndpoint)
+		if err != nil {
+			return err
+		}
 
-	if err := srv.Serve(conn); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		logger.Fatal(err.Error())
+		if err := srv.Serve(conn); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	})
+	g.Go(func() error {
+		<-gCtx.Done()
+		logger.Info("cancel called")
+		return srv.Shutdown(context.Background())
+	})
+	if err := g.Wait(); err != nil {
+		logger.Info("exit happened", zap.Error(err))
 	}
 }
 
