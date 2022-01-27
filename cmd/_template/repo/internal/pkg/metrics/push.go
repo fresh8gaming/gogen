@@ -3,7 +3,7 @@ package metrics
 import (
 	"time"
 
-	"github.com/fresh8gaming/megalith/internal/pkg/logging"
+	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
