@@ -150,7 +150,7 @@ func getGRPCServerOpts(logger *zap.Logger, tracer opentracing.Tracer) []grpc.Ser
 
 func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption,healthServer *health.Server) *grpc.Server {
 	grpcServer := grpc.NewServer(opts...)
-	server.RegisterServices(grpcServer,healthServer *health.Server)
+	server.RegisterServices(grpcServer,healthServer)
 
 	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
