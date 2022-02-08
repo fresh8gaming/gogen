@@ -29,6 +29,8 @@ import (
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/health"
+	healthPB "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 var (
@@ -40,16 +42,15 @@ func main() {
 	logger, tracer := setup()
 
 	opts := getGRPCServerOpts(logger, tracer)
-	grpcServer := getGRPCServer(logger, opts)
+	healthServer := health.NewServer()
+	grpcServer := getGRPCServer(logger, opts,healthServer)
 
 	setupMetrics(grpcServer)
 
 	metrics.StartServer()
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
-
-	defer cancel()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
 	mux := runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(headerMatcher))
 	httpServerEndpoint := fmt.Sprintf("0.0.0.0:%s", config.Get().Port)
@@ -78,14 +79,28 @@ func main() {
 	}
 
 	logger.Info(fmt.Sprintf("starting grpc/http up on %s", httpServerEndpoint))
+	g, gCtx := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		conn, err := net.Listen("tcp", httpServerEndpoint)
+		if err != nil {
+			logger.Fatal(err.Error())
+		}
+		healthServer.SetServingStatus("ready", healthPB.HealthCheckResponse_SERVING)
+		if err := srv.Serve(conn); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.Fatal(err.Error())
+		}
+		return err
+	})
 
-	conn, err := net.Listen("tcp", httpServerEndpoint)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-
-	if err := srv.Serve(conn); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		logger.Fatal(err.Error())
+	g.Go(func() error {
+		<-gCtx.Done()
+		logger.Info("stop called")
+		healthServer.SetServingStatus("ready", healthPB.HealthCheckResponse_NOT_SERVING)
+		// wait for kubernetes to probe the updated not serving status before shutdown.
+		return srv.Shutdown(context.Background())
+	})
+	if err := g.Wait(); err != nil {
+		logger.Info("exit happened", zap.Error(err))
 	}
 }
 
@@ -133,9 +148,9 @@ func getGRPCServerOpts(logger *zap.Logger, tracer opentracing.Tracer) []grpc.Ser
 	return opts
 }
 
-func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption) *grpc.Server {
+func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption,healthServer *health.Server) *grpc.Server {
 	grpcServer := grpc.NewServer(opts...)
-	server.RegisterServices(grpcServer)
+	server.RegisterServices(grpcServer,healthServer *health.Server)
 
 	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
