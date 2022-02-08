@@ -8,7 +8,9 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
