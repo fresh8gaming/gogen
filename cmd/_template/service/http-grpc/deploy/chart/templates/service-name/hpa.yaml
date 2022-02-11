@@ -20,5 +20,5 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      targetAverageUtilization: {{`{{ required "A target CPU value is required for HPA" .Values.`}}{{ .ServiceNameUnderscore }}.hpa.targetCPU }}`}}
+      targetAverageUtilization: {{`{{ required "A target CPU value is required for HPA" .Values.`}}{{ .ServiceNameUnderscore }}.hpa.targetCPU }}
 {{`{{- end -}}`}}
