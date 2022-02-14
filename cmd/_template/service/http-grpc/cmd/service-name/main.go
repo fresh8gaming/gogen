@@ -29,9 +29,11 @@ import (
 	"go.uber.org/zap"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/credentials/insecure"
 	healthPB "google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -56,7 +58,9 @@ func main() {
 
 	mux := runtime.NewServeMux(runtime.WithIncomingHeaderMatcher(headerMatcher))
 	httpServerEndpoint := fmt.Sprintf("0.0.0.0:%s", config.Get().Port)
-	dialOpts := []grpc.DialOption{grpc.WithInsecure()}
+	dialOpts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
 
 	err := server.RegisterHandlers(ctx, mux, httpServerEndpoint, dialOpts)
 	if err != nil {
