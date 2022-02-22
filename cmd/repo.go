@@ -26,7 +26,10 @@ type Repo struct {
 	Org    string
 }
 
-//go:embed _template/repo/* _template/repo/deploy/chart/templates/_helpers.tpl
+//go:embed _template/repo/*
+//go:embed _template/repo/deploy/chart/templates/_helpers.tpl
+//go:embed _template/repo/.circleci/.whitesource
+//go:embed _template/repo/.circleci/.whitesource_setup.sh
 var repoContent embed.FS
 
 var (
@@ -55,7 +58,7 @@ func GetRepoCmd() (*cobra.Command, error) {
 		return nil, err
 	}
 
-	cmdRepo.Flags().StringVarP(&Team, "team", "t", "", "Team responsible for the monorepo (required)")
+	cmdRepo.Flags().StringVarP(&Team, "team", "t", "", "Team responsible for the monorepo (required), must be one of publisher|dmp|social|search")
 	err = cmdRepo.MarkFlagRequired("team")
 	if err != nil {
 		return nil, err
