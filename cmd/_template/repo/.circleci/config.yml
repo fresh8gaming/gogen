@@ -38,4 +38,4 @@ workflows:
           context:
             - whitesource
             - whitesource-{{ .Team }}
-            - go116
+            - go117
