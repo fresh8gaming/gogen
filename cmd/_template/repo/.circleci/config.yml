@@ -23,19 +23,3 @@ workflows:
           context:
             - fresh8bot
             - artifact-registry
-  whitesource:
-    triggers:
-      - schedule:
-          cron: "59 23 * * 6"
-          filters:
-            branches:
-              only:
-                - trunk
-    jobs:
-      - whitesource-scan/scan:
-          config_file_path: .circleci/.whitesource
-          commands_file_path: .circleci/.whitesource_setup.sh
-          context:
-            - whitesource
-            - whitesource-{{ .Team }}
-            - go117
