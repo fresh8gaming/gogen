@@ -1,26 +1,20 @@
 {{ .ServiceNameUnderscore }}:
   port: 8080
   metricsPort: 9898
-  minReplicas: 2
-  maxReplicas: 3
+
   docker:
     image: europe-docker.pkg.dev/intrepid-honor-109516/main/{{ .Name }}-{{ .ServiceName }}
     tag: latest
   logLevel: warn
 
-  serviceAccount: {{ .Name }}-{{ .ServiceName }}
-  tlsEnabled: false
+  serviceAccount: {{ .Name }}-{{ .ServiceName }}-staging
+
+  schedule: "0 9 * * *"
+  suspend: false
 
   profiler:
     enabled: false
     debug: false
-
-  hpa:
-    enabled: false
-
-  pdb:
-    enabled: false
-    maxUnavailable: 0
 
   resources:
     limits:

@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .Name }}
+  name: {{ .Name }}-staging
   namespace: argocd
   labels:
-    environment: production
+    environemt: staging
 spec:
   destination:
-    namespace: '{{ .Domain }}'
+    namespace: '{{ .Domain }}-staging'
     server: 'https://kubernetes.default.svc'
   source:
     path: deploy/chart
@@ -15,7 +15,7 @@ spec:
     targetRevision: HEAD
     helm:
       valueFiles:
-        - values.yaml
+        - staging-values.yaml
   project: default
   syncPolicy:
     syncOptions:
