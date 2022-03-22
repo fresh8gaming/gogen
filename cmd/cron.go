@@ -40,7 +40,7 @@ func createCronService(args []string) {
 		log.Fatalf("%s is not a directory", absPath)
 	}
 
-	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "application.yaml")
+	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "production.yaml")
 	if _, err := os.Stat(argoApplicationFilePath); os.IsNotExist(err) {
 		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
 	}

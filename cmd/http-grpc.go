@@ -56,7 +56,7 @@ func createHTTPGRPCService(args []string) {
 		log.Fatalf("%s is not a directory", absPath)
 	}
 
-	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "application.yaml")
+	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "production.yaml")
 	if _, err := os.Stat(argoApplicationFilePath); os.IsNotExist(err) {
 		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
 	}
@@ -82,6 +82,7 @@ func createHTTPGRPCService(args []string) {
 	copyTemplates(absPath, HTTPGRPCTemplates, service, httpGRPCContent, HTTPGRPCTemplates, func(path string) string {
 		replaced := strings.ReplaceAll(path, "service-name", service.ServiceName)
 		replaced = strings.ReplaceAll(replaced, "service_name", service.ServiceNameUnderscore)
+		replaced = strings.ReplaceAll(replaced, "servicename", service.ServiceNameProto)
 		return replaced
 	})
 

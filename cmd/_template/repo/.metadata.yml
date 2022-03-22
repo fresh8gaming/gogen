@@ -1,5 +1,5 @@
 name: {{.Name}}
-stagingName: {{.Name}}-staging
+staging: true
 team: {{.Team}}
 domain: {{.Domain}}
 whitesourceEnabled: true
