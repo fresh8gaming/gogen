@@ -68,11 +68,11 @@ func createCronService(args []string) {
 		return replaced
 	})
 
-	updatedArgo := updateArgoApplication(argoApplicationFilePath, "values", service)
+	updatedArgo := updateArgoApplication(argoApplicationFilePath, "values-production", service)
 
 	var updatedStagingArgo bool
 	if stagingExists {
-		updatedStagingArgo = updateArgoApplication(stagingArgoApplicationFilePath, "staging-values", service)
+		updatedStagingArgo = updateArgoApplication(stagingArgoApplicationFilePath, "values-staging", service)
 	}
 
 	fmt.Printf("Created %s!\n", green(service.ServiceName))
@@ -89,7 +89,7 @@ func createCronService(args []string) {
 		fmt.Println("It is recommended you commit and push at this point, then run the following:")
 		fmt.Println()
 		if updatedArgo {
-			fmt.Println(blue("kubectl apply -f deploy/argocd/application.yaml"))
+			fmt.Println(blue("kubectl apply -f deploy/argocd/production.yaml"))
 		}
 		if updatedStagingArgo {
 			fmt.Println(blue("kubectl apply -f deploy/argocd/staging.yaml"))
