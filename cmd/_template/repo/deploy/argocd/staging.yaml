@@ -4,7 +4,7 @@ metadata:
   name: {{ .Name }}-staging
   namespace: argocd
   labels:
-    environemt: staging
+    environment: staging
 spec:
   destination:
     namespace: '{{ .Domain }}-staging'

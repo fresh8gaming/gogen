@@ -196,6 +196,7 @@ func updateMetadata(absPath string, service *Service, serviceType string) {
 
 type Metadata struct {
 	Name     string            `yaml:"name"`
+	Staging  bool              `yaml:"staging"`
 	Team     string            `yaml:"team"`
 	Domain   string            `yaml:"domain"`
 	Services []MetadataService `yaml:"services"`
