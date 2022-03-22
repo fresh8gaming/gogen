@@ -1,6 +1,12 @@
 # .circleci/config.yml
 version: 2.1
 
+executors:
+  gcp-default:
+    description: A debian-based machine executor
+    machine: # executor type
+      image: ubuntu-2004:202010-01
+
 workflows:
   main:
     jobs:
@@ -53,14 +59,14 @@ workflows:
 jobs:
   release:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.18
     steps:
       - checkout
       - run: curl -sL https://git.io/goreleaser | bash
 
   install-tools:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.18
     steps:
       - checkout
       - run: make install-tools
@@ -71,7 +77,7 @@ jobs:
 
   test:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.18
     steps:
       - checkout
       - attach_workspace:
@@ -80,7 +86,7 @@ jobs:
 
   lint:
     docker:
-      - image: cimg/go:1.17
+      - image: cimg/go:1.18
     steps:
       - checkout
       - attach_workspace:

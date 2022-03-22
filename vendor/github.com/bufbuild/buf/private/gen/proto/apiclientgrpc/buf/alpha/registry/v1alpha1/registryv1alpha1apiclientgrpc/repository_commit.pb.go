@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Buf Technologies, Inc.
+// Copyright 2020-2022 Buf Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,6 +90,39 @@ func (s *repositoryCommitService) ListRepositoryCommitsByReference(
 	return response.RepositoryCommits, response.NextPageToken, nil
 }
 
+// ListRepositoryCommitsOnTrack returns repository commits up-to and including
+// the provided reference.
+func (s *repositoryCommitService) ListRepositoryCommitsOnTrack(
+	ctx context.Context,
+	repositoryOwner string,
+	repositoryName string,
+	repositoryTrackName string,
+	reference string,
+	pageSize uint32,
+	pageToken string,
+	reverse bool,
+) (repositoryCommits []*v1alpha1.RepositoryCommit, nextPageToken string, _ error) {
+	if s.contextModifier != nil {
+		ctx = s.contextModifier(ctx)
+	}
+	response, err := s.client.ListRepositoryCommitsOnTrack(
+		ctx,
+		&v1alpha1.ListRepositoryCommitsOnTrackRequest{
+			RepositoryOwner:     repositoryOwner,
+			RepositoryName:      repositoryName,
+			RepositoryTrackName: repositoryTrackName,
+			Reference:           reference,
+			PageSize:            pageSize,
+			PageToken:           pageToken,
+			Reverse:             reverse,
+		},
+	)
+	if err != nil {
+		return nil, "", err
+	}
+	return response.RepositoryCommits, response.NextPageToken, nil
+}
+
 // GetRepositoryCommitByReference returns the repository commit matching
 // the provided reference, if it exists.
 func (s *repositoryCommitService) GetRepositoryCommitByReference(
@@ -115,9 +148,9 @@ func (s *repositoryCommitService) GetRepositoryCommitByReference(
 	return response.RepositoryCommit, nil
 }
 
-// GetRepositoryCommitBySequenceID returns the repository commit matching
+// GetRepositoryCommitBySequenceId returns the repository commit matching
 // the provided sequence ID and branch, if it exists.
-func (s *repositoryCommitService) GetRepositoryCommitBySequenceID(
+func (s *repositoryCommitService) GetRepositoryCommitBySequenceId(
 	ctx context.Context,
 	repositoryOwner string,
 	repositoryName string,
@@ -127,9 +160,9 @@ func (s *repositoryCommitService) GetRepositoryCommitBySequenceID(
 	if s.contextModifier != nil {
 		ctx = s.contextModifier(ctx)
 	}
-	response, err := s.client.GetRepositoryCommitBySequenceID(
+	response, err := s.client.GetRepositoryCommitBySequenceId(
 		ctx,
-		&v1alpha1.GetRepositoryCommitBySequenceIDRequest{
+		&v1alpha1.GetRepositoryCommitBySequenceIdRequest{
 			RepositoryOwner:      repositoryOwner,
 			RepositoryName:       repositoryName,
 			RepositoryBranchName: repositoryBranchName,

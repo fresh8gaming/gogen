@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Buf Technologies, Inc.
+// Copyright 2020-2022 Buf Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package internal
 import (
 	"context"
 	"strconv"
-	"strings"
 
+	"github.com/bufbuild/buf/private/buf/bufref"
 	"github.com/bufbuild/buf/private/pkg/app"
 	"github.com/bufbuild/buf/private/pkg/git"
 	"github.com/bufbuild/buf/private/pkg/normalpath"
@@ -26,23 +26,25 @@ import (
 )
 
 type refParser struct {
-	logger              *zap.Logger
-	rawRefProcessor     func(*RawRef) error
-	singleFormatToInfo  map[string]*singleFormatInfo
-	archiveFormatToInfo map[string]*archiveFormatInfo
-	dirFormatToInfo     map[string]*dirFormatInfo
-	gitFormatToInfo     map[string]*gitFormatInfo
-	moduleFormatToInfo  map[string]*moduleFormatInfo
+	logger                *zap.Logger
+	rawRefProcessor       func(*RawRef) error
+	singleFormatToInfo    map[string]*singleFormatInfo
+	archiveFormatToInfo   map[string]*archiveFormatInfo
+	dirFormatToInfo       map[string]*dirFormatInfo
+	gitFormatToInfo       map[string]*gitFormatInfo
+	moduleFormatToInfo    map[string]*moduleFormatInfo
+	protoFileFormatToInfo map[string]*protoFileFormatInfo
 }
 
 func newRefParser(logger *zap.Logger, options ...RefParserOption) *refParser {
 	refParser := &refParser{
-		logger:              logger,
-		singleFormatToInfo:  make(map[string]*singleFormatInfo),
-		archiveFormatToInfo: make(map[string]*archiveFormatInfo),
-		dirFormatToInfo:     make(map[string]*dirFormatInfo),
-		gitFormatToInfo:     make(map[string]*gitFormatInfo),
-		moduleFormatToInfo:  make(map[string]*moduleFormatInfo),
+		logger:                logger,
+		singleFormatToInfo:    make(map[string]*singleFormatInfo),
+		archiveFormatToInfo:   make(map[string]*archiveFormatInfo),
+		dirFormatToInfo:       make(map[string]*dirFormatInfo),
+		gitFormatToInfo:       make(map[string]*gitFormatInfo),
+		moduleFormatToInfo:    make(map[string]*moduleFormatInfo),
+		protoFileFormatToInfo: make(map[string]*protoFileFormatInfo),
 	}
 	for _, option := range options {
 		option(refParser)
@@ -76,7 +78,8 @@ func (a *refParser) getParsedRef(
 	_, dirOK := a.dirFormatToInfo[rawRef.Format]
 	_, gitOK := a.gitFormatToInfo[rawRef.Format]
 	_, moduleOK := a.moduleFormatToInfo[rawRef.Format]
-	if !(singleOK || archiveOK || dirOK || gitOK || moduleOK) {
+	_, protoFileOK := a.protoFileFormatToInfo[rawRef.Format]
+	if !(singleOK || archiveOK || dirOK || gitOK || moduleOK || protoFileOK) {
 		return nil, NewFormatUnknownError(rawRef.Format)
 	}
 	if len(allowedFormats) > 0 {
@@ -89,6 +92,9 @@ func (a *refParser) getParsedRef(
 	}
 	if archiveOK {
 		return getArchiveRef(rawRef, archiveFormatInfo.archiveType, archiveFormatInfo.defaultCompressionType)
+	}
+	if protoFileOK {
+		return getProtoFileRef(rawRef), nil
 	}
 	if dirOK {
 		return getDirRef(rawRef)
@@ -105,7 +111,7 @@ func (a *refParser) getParsedRef(
 // validated per rules on rawRef
 func (a *refParser) getRawRef(value string) (*RawRef, error) {
 	// path is never empty after returning from this function
-	path, options, err := getRawPathAndOptions(value)
+	path, options, err := bufref.GetRawPathAndOptions(value)
 	if err != nil {
 		return nil, err
 	}
@@ -182,6 +188,15 @@ func (a *refParser) getRawRef(value string) (*RawRef, error) {
 			if subDirPath != "." {
 				rawRef.SubDirPath = subDirPath
 			}
+		case "include_package_files":
+			switch value {
+			case "true":
+				rawRef.IncludePackageFiles = true
+			case "false", "":
+				rawRef.IncludePackageFiles = false
+			default:
+				return nil, NewOptionsInvalidKeyError(key)
+			}
 		default:
 			return nil, NewOptionsInvalidKeyError(key)
 		}
@@ -232,47 +247,6 @@ func (a *refParser) getRawRef(value string) (*RawRef, error) {
 		}
 	}
 	return rawRef, nil
-}
-
-// rawPath will be non-empty
-func getRawPathAndOptions(value string) (string, map[string]string, error) {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return "", nil, NewValueEmptyError()
-	}
-
-	switch splitValue := strings.Split(value, "#"); len(splitValue) {
-	case 1:
-		return value, nil, nil
-	case 2:
-		path := strings.TrimSpace(splitValue[0])
-		optionsString := strings.TrimSpace(splitValue[1])
-		if path == "" {
-			return "", nil, NewValueStartsWithHashtagError(value)
-		}
-		if optionsString == "" {
-			return "", nil, NewValueEndsWithHashtagError(value)
-		}
-		options := make(map[string]string)
-		for _, pair := range strings.Split(optionsString, ",") {
-			split := strings.Split(pair, "=")
-			if len(split) != 2 {
-				return "", nil, NewOptionsInvalidError(optionsString)
-			}
-			key := strings.TrimSpace(split[0])
-			value := strings.TrimSpace(split[1])
-			if key == "" || value == "" {
-				return "", nil, NewOptionsInvalidError(optionsString)
-			}
-			if _, ok := options[key]; ok {
-				return "", nil, NewOptionsDuplicateKeyError(key)
-			}
-			options[key] = value
-		}
-		return path, options, nil
-	default:
-		return "", nil, NewValueMultipleHashtagsError(value)
-	}
 }
 
 func getSingleRef(
@@ -368,6 +342,14 @@ func getGitRefName(path string, branch string, tag string, ref string) (git.Name
 	return git.NewTagName(tag), nil
 }
 
+func getProtoFileRef(rawRef *RawRef) ParsedProtoFileRef {
+	return newProtoFileRef(
+		rawRef.Format,
+		rawRef.Path,
+		rawRef.IncludePackageFiles,
+	)
+}
+
 // options
 
 type singleFormatInfo struct {
@@ -412,6 +394,12 @@ func newModuleFormatInfo() *moduleFormatInfo {
 
 type getParsedRefOptions struct {
 	allowedFormats map[string]struct{}
+}
+
+type protoFileFormatInfo struct{}
+
+func newProtoFileFormatInfo() *protoFileFormatInfo {
+	return &protoFileFormatInfo{}
 }
 
 func newGetParsedRefOptions() *getParsedRefOptions {

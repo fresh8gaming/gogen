@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Buf Technologies, Inc.
+// Copyright 2020-2022 Buf Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,26 +27,6 @@ var (
 		"zstd",
 	}
 )
-
-// NewValueEmptyError is a fetch error.
-func NewValueEmptyError() error {
-	return errors.New("required")
-}
-
-// NewValueMultipleHashtagsError is a fetch error.
-func NewValueMultipleHashtagsError(value string) error {
-	return fmt.Errorf("%q has multiple #s which is invalid", value)
-}
-
-// NewValueStartsWithHashtagError is a fetch error.
-func NewValueStartsWithHashtagError(value string) error {
-	return fmt.Errorf("%q starts with # which is invalid", value)
-}
-
-// NewValueEndsWithHashtagError is a fetch error.
-func NewValueEndsWithHashtagError(value string) error {
-	return fmt.Errorf("%q ends with # which is invalid", value)
-}
 
 // NewFormatNotAllowedError is a fetch error.
 func NewFormatNotAllowedError(format string, allowedFormats map[string]struct{}) error {
@@ -98,19 +78,9 @@ func NewNoPathError() error {
 	return errors.New("value has no path once processed")
 }
 
-// NewOptionsInvalidError is a fetch error.
-func NewOptionsInvalidError(s string) error {
-	return fmt.Errorf("invalid options: %q", s)
-}
-
 // NewOptionsInvalidKeyError is a fetch error.
 func NewOptionsInvalidKeyError(key string) error {
 	return fmt.Errorf("invalid options key: %q", key)
-}
-
-// NewOptionsDuplicateKeyError is a fetch error.
-func NewOptionsDuplicateKeyError(key string) error {
-	return fmt.Errorf("duplicate options key: %q", key)
 }
 
 // NewOptionsInvalidForFormatError is a fetch error.
