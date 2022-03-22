@@ -1,6 +1,6 @@
 module github.com/fresh8gaming/gogen
 
-go 1.17
+go 1.18
 
 require (
 	github.com/bufbuild/buf v1.1.1
