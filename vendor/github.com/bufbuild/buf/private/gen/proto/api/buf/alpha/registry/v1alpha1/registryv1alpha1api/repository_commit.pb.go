@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Buf Technologies, Inc.
+// Copyright 2020-2022 Buf Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +45,18 @@ type RepositoryCommitService interface {
 		pageToken string,
 		reverse bool,
 	) (repositoryCommits []*v1alpha1.RepositoryCommit, nextPageToken string, err error)
+	// ListRepositoryCommitsOnTrack returns repository commits up-to and including
+	// the provided reference.
+	ListRepositoryCommitsOnTrack(
+		ctx context.Context,
+		repositoryOwner string,
+		repositoryName string,
+		repositoryTrackName string,
+		reference string,
+		pageSize uint32,
+		pageToken string,
+		reverse bool,
+	) (repositoryCommits []*v1alpha1.RepositoryCommit, nextPageToken string, err error)
 	// GetRepositoryCommitByReference returns the repository commit matching
 	// the provided reference, if it exists.
 	GetRepositoryCommitByReference(
@@ -53,9 +65,9 @@ type RepositoryCommitService interface {
 		repositoryName string,
 		reference string,
 	) (repositoryCommit *v1alpha1.RepositoryCommit, err error)
-	// GetRepositoryCommitBySequenceID returns the repository commit matching
+	// GetRepositoryCommitBySequenceId returns the repository commit matching
 	// the provided sequence ID and branch, if it exists.
-	GetRepositoryCommitBySequenceID(
+	GetRepositoryCommitBySequenceId(
 		ctx context.Context,
 		repositoryOwner string,
 		repositoryName string,
