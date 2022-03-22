@@ -3,6 +3,8 @@ kind: Application
 metadata:
   name: {{ .Name }}
   namespace: argocd
+  labels:
+    environment: production
 spec:
   destination:
     namespace: '{{ .Domain }}'
@@ -13,7 +15,7 @@ spec:
     targetRevision: HEAD
     helm:
       valueFiles:
-        - values.yaml
+        - values-production.yaml
   project: default
   syncPolicy:
     syncOptions:

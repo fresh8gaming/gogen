@@ -1,0 +1,19 @@
+env: staging
+service:
+  type: ClusterIP
+
+gcpProject: intrepid-honor-109516
+
+team: {{ .Team }}
+domain: {{ .Domain }}
+
+monitor: true
+
+profiler:
+  enabled: false
+  debug: false
+
+trace:
+  host: otel-agent.observability.svc.cluster.local
+  port: 6831
+  sampleRate: 0.01

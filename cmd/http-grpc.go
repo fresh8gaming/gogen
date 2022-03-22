@@ -56,9 +56,15 @@ func createHTTPGRPCService(args []string) {
 		log.Fatalf("%s is not a directory", absPath)
 	}
 
-	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "application.yaml")
+	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "production.yaml")
 	if _, err := os.Stat(argoApplicationFilePath); os.IsNotExist(err) {
 		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
+	}
+	stagingExists := true
+	stagingArgoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "staging.yaml")
+	if _, err := os.Stat(stagingArgoApplicationFilePath); os.IsNotExist(err) {
+		stagingExists = false
+		log.Printf("staging argocd application file expected at %s", argoApplicationFilePath)
 	}
 
 	service := &Service{
@@ -76,10 +82,16 @@ func createHTTPGRPCService(args []string) {
 	copyTemplates(absPath, HTTPGRPCTemplates, service, httpGRPCContent, HTTPGRPCTemplates, func(path string) string {
 		replaced := strings.ReplaceAll(path, "service-name", service.ServiceName)
 		replaced = strings.ReplaceAll(replaced, "service_name", service.ServiceNameUnderscore)
+		replaced = strings.ReplaceAll(replaced, "servicename", service.ServiceNameProto)
 		return replaced
 	})
 
-	updatedArgo := updateArgoApplication(argoApplicationFilePath, service)
+	updatedArgo := updateArgoApplication(argoApplicationFilePath, "values-production", service)
+
+	var updatedStagingArgo bool
+	if stagingExists {
+		updatedStagingArgo = updateArgoApplication(stagingArgoApplicationFilePath, "values-staging", service)
+	}
 
 	fmt.Printf("Created %s!\n", green(service.ServiceName))
 	fmt.Println()
@@ -93,10 +105,15 @@ func createHTTPGRPCService(args []string) {
 	fmt.Println(blue("go mod vendor"))
 	fmt.Println()
 
-	if updatedArgo {
+	if updatedArgo || updatedStagingArgo {
 		fmt.Println("It is recommended you commit and push at this point, then run the following:")
 		fmt.Println()
-		fmt.Println(blue("kubectl apply -f deploy/argocd/application.yaml"))
+		if updatedArgo {
+			fmt.Println(blue("kubectl apply -f deploy/argocd/production.yaml"))
+		}
+		if updatedStagingArgo {
+			fmt.Println(blue("kubectl apply -f deploy/argocd/staging.yaml"))
+		}
 		fmt.Println()
 	} else {
 		fmt.Println("It is recommended you commit and push at this point.")
@@ -104,10 +121,10 @@ func createHTTPGRPCService(args []string) {
 	}
 }
 
-func updateArgoApplication(argoApplicationFilePath string, service *Service) bool {
-	valuesFilePath := fmt.Sprintf("values/%s.yaml", service.ServiceName)
+func updateArgoApplication(argoApplicationFilePath, valuesPath string, service *Service) bool {
+	valuesFilePath := fmt.Sprintf("%s/%s.yaml", valuesPath, service.ServiceName)
 
-	fmt.Printf("Appending %s to deploy/argocd/application.yaml\n", blue(valuesFilePath))
+	fmt.Printf("Appending %s to %s\n", blue(valuesFilePath), argoApplicationFilePath)
 
 	argoApplicationFileByte, err := os.ReadFile(argoApplicationFilePath)
 	util.Fatal(err)
@@ -179,6 +196,7 @@ func updateMetadata(absPath string, service *Service, serviceType string) {
 
 type Metadata struct {
 	Name     string            `yaml:"name"`
+	Staging  bool              `yaml:"staging"`
 	Team     string            `yaml:"team"`
 	Domain   string            `yaml:"domain"`
 	Services []MetadataService `yaml:"services"`

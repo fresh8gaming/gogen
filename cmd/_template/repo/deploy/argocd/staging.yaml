@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .Name }}-staging
+  namespace: argocd
+  labels:
+    environment: staging
+spec:
+  destination:
+    namespace: '{{ .Domain }}-staging'
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: deploy/chart
+    repoURL: 'git@github.com:{{ .Org }}/{{ .Name }}'
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values-staging.yaml
+  project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
