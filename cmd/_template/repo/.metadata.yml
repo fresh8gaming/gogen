@@ -3,4 +3,5 @@ staging: true
 team: {{.Team}}
 domain: {{.Domain}}
 whitesourceEnabled: true
+cdEnabled: false
 services: []
