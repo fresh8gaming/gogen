@@ -2,3 +2,4 @@
 .licenses
 .licensed.yml
 bin
+.vscode
