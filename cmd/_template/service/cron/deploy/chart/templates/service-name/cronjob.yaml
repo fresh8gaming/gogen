@@ -1,4 +1,4 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   labels:
@@ -15,6 +15,9 @@ metadata:
   namespace: {{`{{ .Release.Namespace }}`}}
 spec:
   suspend: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.suspend }}`}}
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
   schedule: "{{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.schedule }}`}}"
   jobTemplate:
     spec:
@@ -38,4 +41,5 @@ spec:
               env:
                 - name: ENV
                   value: {{`{{ .Values.env }}`}}
-          restartPolicy: OnFailure
+          restartPolicy: Never
+          terminationGracePeriodSeconds: 300
