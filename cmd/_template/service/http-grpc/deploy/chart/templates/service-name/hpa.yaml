@@ -1,5 +1,5 @@
 {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.hpa.enabled }}`}}
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
@@ -16,6 +16,23 @@ spec:
     name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
   minReplicas: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.minReplicas }}`}}
   maxReplicas: {{`{{ .Values.`}}{{ .ServiceNameUnderscore }}{{`.maxReplicas }}`}}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 200
+        periodSeconds: 10
+      - type: Pods
+        value: 10
+        periodSeconds: 10
+      selectPolicy: Max
   metrics:
   - type: Resource
     resource:
