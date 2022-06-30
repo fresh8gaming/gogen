@@ -51,7 +51,7 @@ func main() {
 
 	setupMetrics(grpcServer)
 
-	metrics.StartServer()
+	metrics.StartServer(config.Get().MPort)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

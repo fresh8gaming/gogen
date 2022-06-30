@@ -7,13 +7,15 @@ import (
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
 )
 
-func StartServer() {
-	logger := logging.GetLogger()
+const defaultMetricsPort = "9898"
 
-	logger.Debug("setup metrics")
+func StartServer(ports ...string) {
+	logger := logging.GetLogger()
+	port := getMetricsPort(ports)
+	logger.Debug("setup metrics", zap.String("port", port))
 
 	metricsServer := &http.Server{
-		Addr:         "0.0.0.0:9898",
+		Addr:         fmt.Sprintf("0.0.0.0:%s", port),
 		WriteTimeout: time.Second * 5,
 		ReadTimeout:  time.Second * 5,
 		IdleTimeout:  time.Second * 60,
@@ -27,4 +29,11 @@ func StartServer() {
 			logger.Error(err.Error())
 		}
 	}()
+}
+
+func getMetricsPort(in []string) string {
+	for _, s := range in {
+		return s
+	}
+	return defaultMetricsPort
 }
