@@ -1,5 +1,5 @@
 {{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.hpa.enabled }}`}}
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{`{{ .Release.Name }}`}}-{{ .ServiceName }}
@@ -36,6 +36,15 @@ spec:
   metrics:
   - type: Resource
     resource:
+      name: memory
+      target:
+        averageUtilization:  {{`{{ required "A target CPU value is required for HPA" .Values.`}}{{ .ServiceNameUnderscore }}.hpa.targetMemory }}
+        type: Utilization
+  - type: Resource
+    resource:
       name: cpu
-      targetAverageUtilization: {{`{{ required "A target CPU value is required for HPA" .Values.`}}{{ .ServiceNameUnderscore }}.hpa.targetCPU }}
+      target:
+        averageUtilization:  {{`{{ required "A target CPU value is required for HPA" .Values.`}}{{ .ServiceNameUnderscore }}.hpa.targetCPU }}
+        type: Utilization
+{{- end -}}
 {{`{{- end -}}`}}

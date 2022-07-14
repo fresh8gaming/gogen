@@ -17,10 +17,12 @@
 
   hpa:
     enabled: false
+    targetMemory: 90
+    targetCPU: 80
 
   pdb:
     enabled: false
-    maxUnavailable: 0
+    maxUnavailable: 1
 
   resources:
     limits:
