@@ -68,10 +68,11 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:         httpServerEndpoint,
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 30,
+		Addr:              httpServerEndpoint,
+		WriteTimeout:      time.Second * 15,
+		ReadTimeout:       time.Second * 15,
+		IdleTimeout:       time.Second * 30,
+		ReadHeaderTimeout: time.Second * 2,
 
 		// http.Handler that delegates to grpcServer on incoming gRPC connections or mux otherwise.
 		// Copied from https://github.com/philips/grpc-gateway-example/blob/master/cmd/serve.go#L49-L61
