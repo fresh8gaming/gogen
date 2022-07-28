@@ -46,5 +46,4 @@ spec:
       target:
         averageUtilization:  {{`{{ required "A target CPU value is required for HPA" .Values.`}}{{ .ServiceNameUnderscore }}.hpa.targetCPU }}
         type: Utilization
-{{- end -}}
 {{`{{- end -}}`}}
