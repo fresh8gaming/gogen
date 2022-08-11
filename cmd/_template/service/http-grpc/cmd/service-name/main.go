@@ -179,7 +179,7 @@ func setupMetrics(grpcServer *grpc.Server) {
 }
 
 func headerMatcher(key string) (string, bool) {
-	switch key { // nolint:gocritic
+	switch key { //nolint:gocritic
 	default:
 		return runtime.DefaultHeaderMatcher(key)
 	}
