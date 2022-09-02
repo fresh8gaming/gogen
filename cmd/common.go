@@ -85,13 +85,24 @@ func updateMetadata(absPath string, service *Service, serviceType string) {
 }
 
 type Metadata struct {
-	Name               string            `yaml:"name"`
-	Staging            bool              `yaml:"staging"`
-	Team               string            `yaml:"team"`
-	Domain             string            `yaml:"domain"`
-	WhitesourceEnabled bool              `yaml:"whitesourceEnabled"`
-	CDEnabled          bool              `yaml:"cdEnabled"`
-	Services           []MetadataService `yaml:"services"`
+	Name                   string            `yaml:"name"`
+	Staging                bool              `yaml:"staging"`
+	Team                   string            `yaml:"team"`
+	Domain                 string            `yaml:"domain"`
+	WhitesourceEnabled     bool              `yaml:"whitesourceEnabled"`
+	KubescoreEnabled       bool              `yaml:"kubescoreEnabled"`
+	CDEnabled              bool              `yaml:"cdEnabled"`
+	Services               []MetadataService `yaml:"services"`
+	ArgoAppNamesProduction string            `yaml:"argoAppNamesProduction"`
+	ArgoAppNamesStaging    string            `yaml:"argoAppNamesStaging"`
+	SkipInstallTools       bool              `yaml:"skipInstallTools"`
+
+	Deploy Deploy `yaml:"deploy"`
+}
+
+type Deploy struct {
+	Platform string `yaml:"platform"`
+	Product  string `yaml:"product"`
 }
 
 type MetadataService struct {
