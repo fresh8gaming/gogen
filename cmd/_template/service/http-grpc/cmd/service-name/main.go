@@ -99,11 +99,21 @@ func main() {
 		return err
 	})
 
+	const shutDownGracePeriodSeconds = 30
 	g.Go(func() error {
 		<-gCtx.Done()
 		logger.Info("stop called")
 		healthServer.SetServingStatus("ready", healthPB.HealthCheckResponse_NOT_SERVING)
-		// wait for kubernetes to probe the updated not serving status before shutdown.
+		// Give K8s enough time to pick up that the service is no longer serving
+		time.Sleep(shutDownGracePeriodSeconds * time.Second)
+
+		// Drain any pending connections from GRPC/HTTP. We do this at the very
+		// end because pubsub may be in the middle of a long running operation and
+		// we want to continue to serve the health of the service during this so
+		// no new incoming connections are made. Might want to consider serving
+		// health on a different HTTP server.
+		logger.Info("gracefully shutting down http/grpc server")
+		grpcServer.GracefulStop()
 		return srv.Shutdown(context.Background())
 	})
 	if err := g.Wait(); err != nil {
