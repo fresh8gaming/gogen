@@ -106,7 +106,8 @@ type Deploy struct {
 }
 
 type MetadataService struct {
-	Name      string `yaml:"name"`
-	Type      string `yaml:"type"`
-	CIEnabled bool   `yaml:"ciEnabled"`
+	Name       string `yaml:"name"`
+	Type       string `yaml:"type"`
+	CIEnabled  bool   `yaml:"ciEnabled"`
+	Dockerfile string `yaml:"dockerfile,omitempty"`
 }
