@@ -8,11 +8,11 @@ orbs:
 jobs:
   setup:
     docker:
-      - image: cimg/base:2021.10
+      - image: cimg/go:1.18
     steps:
       - checkout
-      - run: curl -fsSL https://raw.githubusercontent.com/fresh8gaming/circleci-config-generator/trunk/install.sh | bash
-      - run: circleci-config-generator
+      - run: curl -fsSL https://raw.githubusercontent.com/fresh8gaming/circlegen/trunk/install.sh | bash
+      - run: circlegen
       - continuation/continue:
           configuration_path: .circleci/generated-config.yml
 
