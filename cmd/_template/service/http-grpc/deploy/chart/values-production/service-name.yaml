@@ -1,4 +1,5 @@
 {{ .ServiceNameUnderscore }}:
+  enabled: false
   port: 8080
   metricsPort: 9898
   minReplicas: 2

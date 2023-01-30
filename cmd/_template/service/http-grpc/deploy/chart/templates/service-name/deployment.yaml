@@ -1,3 +1,4 @@
+{{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.enabled }}`}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -119,3 +120,4 @@ spec:
       tolerations:
 {{`{{ toYaml .Values.`}}{{ .ServiceNameUnderscore }}{{`.tolerations | indent 8 }}`}}
     {{`{{- end }}`}}
+{{`{{- end -}}`}}

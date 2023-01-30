@@ -1,3 +1,4 @@
+{{`{{- if .Values.`}}{{ .ServiceNameUnderscore }}{{`.enabled }}`}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -43,3 +44,4 @@ spec:
                   value: {{`{{ .Values.env }}`}}
           restartPolicy: Never
           terminationGracePeriodSeconds: 300
+{{`{{- end -}}`}}
