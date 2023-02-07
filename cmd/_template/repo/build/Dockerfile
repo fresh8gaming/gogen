@@ -30,6 +30,7 @@ ENV GID=1000
 
 RUN addgroup --gid "${GID}" appgroup
 
+# hadolint ignore=DL3059
 RUN adduser \
   --disabled-password \
   --gecos "" \
