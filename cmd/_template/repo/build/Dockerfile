@@ -19,17 +19,18 @@ RUN BUILDFLAGS="-w -s -extldflags '-static' -X 'main.Version=${VERSION_VALUE}' -
   wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
   chmod +x /bin/grpc_health_probe
 
-FROM alpine:${ALPINE_VERSION}
+FROM alpine:${ALPINE_VERSION} AS alpine-builder
+
+RUN apk update && apk add --no-cache ca-certificates=20220614-r4 tzdata=2022f-r1
+RUN update-ca-certificates
 
 ENV USER=appuser
 ENV UID=1000
 ENV GID=1000
 
-RUN apk update && \
-  apk add --no-cache ca-certificates=20191127-r5 tzdata=2021a-r0 && \
-  update-ca-certificates && \
-  addgroup --gid "${GID}" appgroup && \
-  adduser \
+RUN addgroup --gid "${GID}" appgroup
+
+RUN adduser \
   --disabled-password \
   --gecos "" \
   --home "/nonexistent" \
@@ -41,10 +42,10 @@ RUN apk update && \
 
 FROM scratch
 
-COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /etc/group /etc/group
+COPY --from=alpine-builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=alpine-builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=alpine-builder /etc/passwd /etc/passwd
+COPY --from=alpine-builder /etc/group /etc/group
 
 USER 1000:1000
 
