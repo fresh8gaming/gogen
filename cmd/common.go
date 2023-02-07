@@ -8,7 +8,7 @@ import (
 	"github.com/fresh8gaming/gogen/internal/util"
 
 	"github.com/icza/dyno"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func updateArgoApplication(argoApplicationFilePath, valuesPath string, service *Service) bool {
