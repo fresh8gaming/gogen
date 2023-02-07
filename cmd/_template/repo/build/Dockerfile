@@ -1,6 +1,9 @@
 ARG VERSION="dev"
+ARG GO_VERSION=1.18
+ARG ALPINE_VERSION=3.17
+ARG GRPC_HEALTH_PROBE_VERSION=v0.4.15
 
-FROM golang:1.18-alpine AS builder
+FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
 
 ARG VERSION
 ARG APP
@@ -12,11 +15,38 @@ WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s -extldflags \"-static\" -X \"main.Version=${VERSION_VALUE}\" -X \"main.App=${APP_VALUE}\"" -a -o /go/bin/service ./cmd/${APP_VALUE}/main.go && \
-  GRPC_HEALTH_PROBE_VERSION=v0.4.8 && \
   wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
   chmod +x /bin/grpc_health_probe
 
-FROM fresh8gaming/docker-images:base-scratch
+FROM alpine:${ALPINE_VERSION}
+
+RUN apk update && apk add --no-cache ca-certificates=20191127-r5 tzdata=2021a-r0
+RUN update-ca-certificates
+
+ENV USER=appuser
+ENV UID=1000
+ENV GID=1000
+
+RUN addgroup --gid "${GID}" appgroup
+
+RUN adduser \
+  --disabled-password \
+  --gecos "" \
+  --home "/nonexistent" \
+  --shell "/sbin/nologin" \
+  --no-create-home \
+  --uid "${UID}" \
+  -G appgroup \
+  "${USER}"
+
+FROM scratch
+
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+
+USER 1000:1000
 
 COPY --from=builder /go/bin/service /go/bin/service
 COPY --from=builder /bin/grpc_health_probe /bin/grpc_health_probe
