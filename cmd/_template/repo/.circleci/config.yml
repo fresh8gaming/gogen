@@ -8,7 +8,7 @@ orbs:
 jobs:
   setup:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.20
     steps:
       - checkout
       - run: curl -fsSL https://raw.githubusercontent.com/fresh8gaming/circlegen/trunk/install.sh | bash

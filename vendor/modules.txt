@@ -223,7 +223,7 @@ github.com/charithe/durationcheck
 # github.com/chavacava/garif v0.0.0-20210405164556-e8a0a408d6af
 ## explicit; go 1.16
 github.com/chavacava/garif
-# github.com/cpuguy83/go-md2man/v2 v2.0.1
+# github.com/cpuguy83/go-md2man/v2 v2.0.2
 ## explicit; go 1.11
 github.com/cpuguy83/go-md2man/v2/md2man
 # github.com/daixiang0/gci v0.3.3
@@ -251,8 +251,8 @@ github.com/esimonov/ifshort/pkg/analyzer
 # github.com/ettle/strcase v0.1.1
 ## explicit; go 1.12
 github.com/ettle/strcase
-# github.com/fatih/color v1.13.0
-## explicit; go 1.13
+# github.com/fatih/color v1.14.1
+## explicit; go 1.17
 github.com/fatih/color
 # github.com/fatih/structtag v1.2.0
 ## explicit; go 1.12
@@ -440,11 +440,11 @@ github.com/hashicorp/hcl/json/token
 github.com/hexops/gotextdiff
 github.com/hexops/gotextdiff/myers
 github.com/hexops/gotextdiff/span
-# github.com/icza/dyno v0.0.0-20210726202311-f1bafe5d9996
+# github.com/icza/dyno v0.0.0-20220812133438-f0b6f8a18845
 ## explicit; go 1.13
 github.com/icza/dyno
-# github.com/inconshreveable/mousetrap v1.0.0
-## explicit
+# github.com/inconshreveable/mousetrap v1.1.0
+## explicit; go 1.18
 github.com/inconshreveable/mousetrap
 # github.com/jdxcode/netrc v0.0.0-20210204082910-926c7f70242a
 ## explicit; go 1.15
@@ -526,11 +526,11 @@ github.com/maratori/testpackage/pkg/testpackage
 # github.com/matoous/godox v0.0.0-20210227103229-6504466cf951
 ## explicit; go 1.13
 github.com/matoous/godox
-# github.com/mattn/go-colorable v0.1.12
-## explicit; go 1.13
+# github.com/mattn/go-colorable v0.1.13
+## explicit; go 1.15
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.14
-## explicit; go 1.12
+# github.com/mattn/go-isatty v0.0.17
+## explicit; go 1.15
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.9
 ## explicit; go 1.9
@@ -687,7 +687,7 @@ github.com/spf13/afero/mem
 # github.com/spf13/cast v1.4.1
 ## explicit
 github.com/spf13/cast
-# github.com/spf13/cobra v1.4.0
+# github.com/spf13/cobra v1.6.1
 ## explicit; go 1.15
 github.com/spf13/cobra
 github.com/spf13/cobra/doc
@@ -808,7 +808,7 @@ golang.org/x/net/trace
 # golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 ## explicit
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6
+# golang.org/x/sys v0.5.0
 ## explicit; go 1.17
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader
@@ -1007,7 +1007,7 @@ gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.4.0
 ## explicit; go 1.15
 gopkg.in/yaml.v2
-# gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+# gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
 # gotest.tools/gotestsum v1.7.0
