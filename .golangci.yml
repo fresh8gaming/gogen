@@ -53,11 +53,9 @@ linters:
   disable-all: true
   enable:
     - asciicheck
-    - bodyclose
     - deadcode
     - depguard
     - dogsled
-    - dupl
     - errcheck
     - exhaustive
     - gochecknoinits
@@ -69,41 +67,23 @@ linters:
     - gomnd
     - goprintffuncname
     - gosec
-    - gosimple
     - govet
     - ineffassign
     - lll
     - nakedret
-    - noctx
     - nolintlint
     - prealloc
-    - rowserrcheck
-    - exportloopref
-    - staticcheck
-    - structcheck
-    - stylecheck
     - testpackage
     - typecheck
     - unconvert
-    - unparam
-    - unused
     - varcheck
     - whitespace
     - funlen
     - gocyclo
-    - revive
     - gocognit
     - godox
     - nestif
-
-    # disable requested by engineers:
-    # - goerr113
-    # - wsl
-    # - misspell # Issue with color/colour on an import...
-
-    # don't enable:
-    # - gochecknoglobals
-
+ 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:

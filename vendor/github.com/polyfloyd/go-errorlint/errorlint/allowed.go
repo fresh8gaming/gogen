@@ -40,6 +40,7 @@ var allowedErrors = []struct {
 	{err: "io.ErrClosedPipe", fun: "(*io.PipeWriter).Write"},
 	{err: "io.ErrShortBuffer", fun: "io.ReadAtLeast"},
 	{err: "io.ErrUnexpectedEOF", fun: "io.ReadAtLeast"},
+	{err: "io.EOF", fun: "io.ReadFull"},
 	{err: "io.ErrUnexpectedEOF", fun: "io.ReadFull"},
 	// pkg/net/http
 	{err: "http.ErrServerClosed", fun: "(*net/http.Server).ListenAndServe"},
@@ -168,6 +169,10 @@ func assigningCallExprs(info *TypesInfoExt, subject *ast.Ident) []*ast.CallExpr 
 				// Found the function call.
 				callExprs = append(callExprs, assignT)
 			case *ast.Ident:
+				// Skip assignments here the RHS points to the same object as the subject.
+				if assignT.Obj == subject.Obj {
+					continue
+				}
 				// The subject was the result of assigning from another identifier.
 				callExprs = append(callExprs, assigningCallExprs(info, assignT)...)
 			default:

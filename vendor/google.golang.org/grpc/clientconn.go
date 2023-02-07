@@ -278,7 +278,7 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 	if creds := cc.dopts.copts.TransportCredentials; creds != nil {
 		credsClone = creds.Clone()
 	}
-	cc.balancerBuildOpts = balancer.BuildOptions{
+	cc.balancerWrapper = newCCBalancerWrapper(cc, balancer.BuildOptions{
 		DialCreds:        credsClone,
 		CredsBundle:      cc.dopts.copts.CredsBundle,
 		Dialer:           cc.dopts.copts.Dialer,
@@ -286,7 +286,7 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		CustomUserAgent:  cc.dopts.copts.UserAgent,
 		ChannelzParentID: cc.channelzID,
 		Target:           cc.parsedTarget,
-	}
+	})
 
 	// Build the resolver.
 	rWrapper, err := newCCResolverWrapper(cc, resolverBuilder)
@@ -461,34 +461,36 @@ var _ ClientConnInterface = (*ClientConn)(nil)
 // handshakes. It also handles errors on established connections by
 // re-resolving the name and reconnecting.
 type ClientConn struct {
-	ctx    context.Context
-	cancel context.CancelFunc
+	ctx    context.Context    // Initialized using the background context at dial time.
+	cancel context.CancelFunc // Cancelled on close.
 
-	target       string
-	parsedTarget resolver.Target
-	authority    string
-	dopts        dialOptions
-	csMgr        *connectivityStateManager
+	// The following are initialized at dial time, and are read-only after that.
+	target          string               // User's dial target.
+	parsedTarget    resolver.Target      // See parseTargetAndFindResolver().
+	authority       string               // See determineAuthority().
+	dopts           dialOptions          // Default and user specified dial options.
+	channelzID      *channelz.Identifier // Channelz identifier for the channel.
+	balancerWrapper *ccBalancerWrapper   // Uses gracefulswitch.balancer underneath.
 
-	balancerBuildOpts balancer.BuildOptions
-	blockingpicker    *pickerWrapper
-
+	// The following provide their own synchronization, and therefore don't
+	// require cc.mu to be held to access them.
+	csMgr              *connectivityStateManager
+	blockingpicker     *pickerWrapper
 	safeConfigSelector iresolver.SafeConfigSelector
+	czData             *channelzData
+	retryThrottler     atomic.Value // Updated from service config.
 
-	mu              sync.RWMutex
-	resolverWrapper *ccResolverWrapper
-	sc              *ServiceConfig
-	conns           map[*addrConn]struct{}
-	// Keepalive parameter can be updated if a GoAway is received.
-	mkp             keepalive.ClientParameters
-	curBalancerName string
-	balancerWrapper *ccBalancerWrapper
-	retryThrottler  atomic.Value
-
+	// firstResolveEvent is used to track whether the name resolver sent us at
+	// least one update. RPCs block on this event.
 	firstResolveEvent *grpcsync.Event
 
-	channelzID *channelz.Identifier
-	czData     *channelzData
+	// mu protects the following fields.
+	// TODO: split mu so the same mutex isn't used for everything.
+	mu              sync.RWMutex
+	resolverWrapper *ccResolverWrapper         // Initialized in Dial; cleared in Close.
+	sc              *ServiceConfig             // Latest service config received from the resolver.
+	conns           map[*addrConn]struct{}     // Set to nil on close.
+	mkp             keepalive.ClientParameters // May be updated upon receipt of a GoAway.
 
 	lceMu               sync.Mutex // protects lastConnectionError
 	lastConnectionError error
@@ -533,14 +535,7 @@ func (cc *ClientConn) GetState() connectivity.State {
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a later
 // release.
 func (cc *ClientConn) Connect() {
-	cc.mu.Lock()
-	defer cc.mu.Unlock()
-	if cc.balancerWrapper != nil && cc.balancerWrapper.exitIdle() {
-		return
-	}
-	for ac := range cc.conns {
-		go ac.connect()
-	}
+	cc.balancerWrapper.exitIdle()
 }
 
 func (cc *ClientConn) scWatcher() {
@@ -620,9 +615,7 @@ func (cc *ClientConn) updateResolverState(s resolver.State, err error) error {
 		// with the new addresses.
 		cc.maybeApplyDefaultServiceConfig(nil)
 
-		if cc.balancerWrapper != nil {
-			cc.balancerWrapper.resolverError(err)
-		}
+		cc.balancerWrapper.resolverError(err)
 
 		// No addresses are valid with err set; return early.
 		cc.mu.Unlock()
@@ -650,16 +643,10 @@ func (cc *ClientConn) updateResolverState(s resolver.State, err error) error {
 			cc.applyServiceConfigAndBalancer(sc, configSelector, s.Addresses)
 		} else {
 			ret = balancer.ErrBadResolverState
-			if cc.balancerWrapper == nil {
-				var err error
-				if s.ServiceConfig.Err != nil {
-					err = status.Errorf(codes.Unavailable, "error parsing service config: %v", s.ServiceConfig.Err)
-				} else {
-					err = status.Errorf(codes.Unavailable, "illegal service config type: %T", s.ServiceConfig.Config)
-				}
-				cc.safeConfigSelector.UpdateConfigSelector(&defaultConfigSelector{cc.sc})
-				cc.blockingpicker.updatePicker(base.NewErrPicker(err))
-				cc.csMgr.updateState(connectivity.TransientFailure)
+			if cc.sc == nil {
+				// Apply the failing LB only if we haven't received valid service config
+				// from the name resolver in the past.
+				cc.applyFailingLB(s.ServiceConfig)
 				cc.mu.Unlock()
 				return ret
 			}
@@ -667,24 +654,12 @@ func (cc *ClientConn) updateResolverState(s resolver.State, err error) error {
 	}
 
 	var balCfg serviceconfig.LoadBalancingConfig
-	if cc.dopts.balancerBuilder == nil && cc.sc != nil && cc.sc.lbConfig != nil {
+	if cc.sc != nil && cc.sc.lbConfig != nil {
 		balCfg = cc.sc.lbConfig.cfg
 	}
-
-	cbn := cc.curBalancerName
 	bw := cc.balancerWrapper
 	cc.mu.Unlock()
-	if cbn != grpclbName {
-		// Filter any grpclb addresses since we don't have the grpclb balancer.
-		for i := 0; i < len(s.Addresses); {
-			if s.Addresses[i].Type == resolver.GRPCLB {
-				copy(s.Addresses[i:], s.Addresses[i+1:])
-				s.Addresses = s.Addresses[:len(s.Addresses)-1]
-				continue
-			}
-			i++
-		}
-	}
+
 	uccsErr := bw.updateClientConnState(&balancer.ClientConnState{ResolverState: s, BalancerConfig: balCfg})
 	if ret == nil {
 		ret = uccsErr // prefer ErrBadResolver state since any other error is
@@ -693,56 +668,28 @@ func (cc *ClientConn) updateResolverState(s resolver.State, err error) error {
 	return ret
 }
 
-// switchBalancer starts the switching from current balancer to the balancer
-// with the given name.
-//
-// It will NOT send the current address list to the new balancer. If needed,
-// caller of this function should send address list to the new balancer after
-// this function returns.
+// applyFailingLB is akin to configuring an LB policy on the channel which
+// always fails RPCs. Here, an actual LB policy is not configured, but an always
+// erroring picker is configured, which returns errors with information about
+// what was invalid in the received service config. A config selector with no
+// service config is configured, and the connectivity state of the channel is
+// set to TransientFailure.
 //
 // Caller must hold cc.mu.
-func (cc *ClientConn) switchBalancer(name string) {
-	if strings.EqualFold(cc.curBalancerName, name) {
-		return
-	}
-
-	channelz.Infof(logger, cc.channelzID, "ClientConn switching balancer to %q", name)
-	if cc.dopts.balancerBuilder != nil {
-		channelz.Info(logger, cc.channelzID, "ignoring balancer switching: Balancer DialOption used instead")
-		return
-	}
-	if cc.balancerWrapper != nil {
-		// Don't hold cc.mu while closing the balancers. The balancers may call
-		// methods that require cc.mu (e.g. cc.NewSubConn()). Holding the mutex
-		// would cause a deadlock in that case.
-		cc.mu.Unlock()
-		cc.balancerWrapper.close()
-		cc.mu.Lock()
-	}
-
-	builder := balancer.Get(name)
-	if builder == nil {
-		channelz.Warningf(logger, cc.channelzID, "Channel switches to new LB policy %q due to fallback from invalid balancer name", PickFirstBalancerName)
-		channelz.Infof(logger, cc.channelzID, "failed to get balancer builder for: %v, using pick_first instead", name)
-		builder = newPickfirstBuilder()
+func (cc *ClientConn) applyFailingLB(sc *serviceconfig.ParseResult) {
+	var err error
+	if sc.Err != nil {
+		err = status.Errorf(codes.Unavailable, "error parsing service config: %v", sc.Err)
 	} else {
-		channelz.Infof(logger, cc.channelzID, "Channel switches to new LB policy %q", name)
+		err = status.Errorf(codes.Unavailable, "illegal service config type: %T", sc.Config)
 	}
-
-	cc.curBalancerName = builder.Name()
-	cc.balancerWrapper = newCCBalancerWrapper(cc, builder, cc.balancerBuildOpts)
+	cc.safeConfigSelector.UpdateConfigSelector(&defaultConfigSelector{nil})
+	cc.blockingpicker.updatePicker(base.NewErrPicker(err))
+	cc.csMgr.updateState(connectivity.TransientFailure)
 }
 
 func (cc *ClientConn) handleSubConnStateChange(sc balancer.SubConn, s connectivity.State, err error) {
-	cc.mu.Lock()
-	if cc.conns == nil {
-		cc.mu.Unlock()
-		return
-	}
-	// TODO(bar switching) send updates to all balancer wrappers when balancer
-	// gracefully switching is supported.
-	cc.balancerWrapper.handleSubConnStateChange(sc, s, err)
-	cc.mu.Unlock()
+	cc.balancerWrapper.updateSubConnState(sc, s, err)
 }
 
 // newAddrConn creates an addrConn for addrs and adds it to cc.conns.
@@ -960,14 +907,10 @@ func (cc *ClientConn) healthCheckConfig() *healthCheckConfig {
 }
 
 func (cc *ClientConn) getTransport(ctx context.Context, failfast bool, method string) (transport.ClientTransport, func(balancer.DoneInfo), error) {
-	t, done, err := cc.blockingpicker.pick(ctx, failfast, balancer.PickInfo{
+	return cc.blockingpicker.pick(ctx, failfast, balancer.PickInfo{
 		Ctx:            ctx,
 		FullMethodName: method,
 	})
-	if err != nil {
-		return nil, nil, toRPCErr(err)
-	}
-	return t, done, nil
 }
 
 func (cc *ClientConn) applyServiceConfigAndBalancer(sc *ServiceConfig, configSelector iresolver.ConfigSelector, addrs []resolver.Address) {
@@ -992,35 +935,26 @@ func (cc *ClientConn) applyServiceConfigAndBalancer(sc *ServiceConfig, configSel
 		cc.retryThrottler.Store((*retryThrottler)(nil))
 	}
 
-	if cc.dopts.balancerBuilder == nil {
-		// Only look at balancer types and switch balancer if balancer dial
-		// option is not set.
-		var newBalancerName string
-		if cc.sc != nil && cc.sc.lbConfig != nil {
-			newBalancerName = cc.sc.lbConfig.name
-		} else {
-			var isGRPCLB bool
-			for _, a := range addrs {
-				if a.Type == resolver.GRPCLB {
-					isGRPCLB = true
-					break
-				}
-			}
-			if isGRPCLB {
-				newBalancerName = grpclbName
-			} else if cc.sc != nil && cc.sc.LB != nil {
-				newBalancerName = *cc.sc.LB
-			} else {
-				newBalancerName = PickFirstBalancerName
+	var newBalancerName string
+	if cc.sc != nil && cc.sc.lbConfig != nil {
+		newBalancerName = cc.sc.lbConfig.name
+	} else {
+		var isGRPCLB bool
+		for _, a := range addrs {
+			if a.Type == resolver.GRPCLB {
+				isGRPCLB = true
+				break
 			}
 		}
-		cc.switchBalancer(newBalancerName)
-	} else if cc.balancerWrapper == nil {
-		// Balancer dial option was set, and this is the first time handling
-		// resolved addresses. Build a balancer with dopts.balancerBuilder.
-		cc.curBalancerName = cc.dopts.balancerBuilder.Name()
-		cc.balancerWrapper = newCCBalancerWrapper(cc, cc.dopts.balancerBuilder, cc.balancerBuildOpts)
+		if isGRPCLB {
+			newBalancerName = grpclbName
+		} else if cc.sc != nil && cc.sc.LB != nil {
+			newBalancerName = *cc.sc.LB
+		} else {
+			newBalancerName = PickFirstBalancerName
+		}
 	}
+	cc.balancerWrapper.switchTo(newBalancerName)
 }
 
 func (cc *ClientConn) resolveNow(o resolver.ResolveNowOptions) {
@@ -1071,11 +1005,11 @@ func (cc *ClientConn) Close() error {
 	rWrapper := cc.resolverWrapper
 	cc.resolverWrapper = nil
 	bWrapper := cc.balancerWrapper
-	cc.balancerWrapper = nil
 	cc.mu.Unlock()
 
+	// The order of closing matters here since the balancer wrapper assumes the
+	// picker is closed before it is closed.
 	cc.blockingpicker.close()
-
 	if bWrapper != nil {
 		bWrapper.close()
 	}

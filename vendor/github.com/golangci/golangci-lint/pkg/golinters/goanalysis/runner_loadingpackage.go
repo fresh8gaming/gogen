@@ -123,6 +123,7 @@ func (lp *loadingPackage) loadFromSource(loadMode LoadMode) error {
 
 	pkg.TypesInfo = &types.Info{
 		Types:      make(map[ast.Expr]types.TypeAndValue),
+		Instances:  make(map[*ast.Ident]types.Instance),
 		Defs:       make(map[*ast.Ident]types.Object),
 		Uses:       make(map[*ast.Ident]types.Object),
 		Implicits:  make(map[ast.Node]types.Object),
@@ -433,6 +434,7 @@ func (lp *loadingPackage) convertError(err error) []packages.Error {
 		// If you see this error message, please file a bug.
 		lp.log.Warnf("Internal error: error %q (%T) without position", err, err)
 	}
+
 	return errs
 }
 
