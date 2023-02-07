@@ -4,12 +4,14 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 )
 
 var (
 	globalLogger *zap.Logger
+	once         sync.Once
 )
 
 const (
@@ -76,4 +78,14 @@ func NewLogger(env string) (*zap.Logger, error) {
 	_ = logger.Sync()
 
 	return logger, err
+}
+
+func SetupLogger() {
+	once.Do(func() {
+		logger, err := NewLogger(os.Getenv("ENV"))
+		if err != nil {
+			log.Fatalf("Cannot set up logger: %s", err.Error())
+		}
+		SetLogger(logger)
+	})
 }
