@@ -9,19 +9,21 @@ ARG VERSION
 ARG APP
 ENV VERSION_VALUE $VERSION
 ENV APP_VALUE $APP
-ENV USER=appuser
-ENV UID=1000
-ENV GID=1000
 
 WORKDIR $GOPATH/src/mypackage/myapp/
 
 COPY . .
 
+# hadolint ignore=SC2086
 RUN BUILDFLAGS="-w -s -extldflags '-static' -X 'main.Version=${VERSION_VALUE}' -X 'main.App=${APP_VALUE}'" CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags=${BUILDFLAGS} -a -o /go/bin/service ./cmd/${APP_VALUE}/main.go && \
   wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
   chmod +x /bin/grpc_health_probe
 
 FROM alpine:${ALPINE_VERSION}
+
+ENV USER=appuser
+ENV UID=1000
+ENV GID=1000
 
 RUN apk update && \
   apk add --no-cache ca-certificates=20191127-r5 tzdata=2021a-r0 && \
