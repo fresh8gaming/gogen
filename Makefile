@@ -1,5 +1,6 @@
 export PATH := $(PWD)/bin:$(PATH)
 export GOBIN := $(PWD)/bin
+
 lint:
 	golangci-lint run -c .golangci.yml -v
 
