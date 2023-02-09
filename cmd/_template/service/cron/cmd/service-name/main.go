@@ -6,12 +6,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/process"
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/metrics"
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/profiling"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/tracing"
+	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
+	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/process"
 )
 
 var (
@@ -50,13 +49,6 @@ func setup() {
 			logger.Error(err.Error())
 		}
 	}
-
-	tracer, err := tracing.NewTracer(App)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-
-	tracing.SetTracer(tracer)
 
 	if config.Get().PushMetricsEnabled {
 		metrics.SetPusher(config.Get().PushGatewayAddress, App)

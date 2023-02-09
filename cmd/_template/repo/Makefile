@@ -2,7 +2,7 @@ export PATH := $(PWD)/bin:$(PATH)
 export GOBIN := $(PWD)/bin
 
 lint:
-	golangci-lint run -c .golangci.yml -v
+	GOROOT=$(GOROOT) golangci-lint run --verbose -c .golangci.yml --timeout 300s
 
 test:
 	gotestsum -- -race ./...

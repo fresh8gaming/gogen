@@ -13,28 +13,25 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/server"
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/metrics"
 	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/profiling"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/tracing"
+	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
+	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/server"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/health"
 	healthPB "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 )
 
 var (
@@ -43,11 +40,11 @@ var (
 )
 
 func main() {
-	logger, tracer := setup()
+	logger := setup()
 
-	opts := getGRPCServerOpts(logger, tracer)
+	opts := getGRPCServerOpts(logger)
 	healthServer := health.NewServer()
-	grpcServer := getGRPCServer(logger, opts,healthServer)
+	grpcServer := getGRPCServer(logger, opts, healthServer)
 
 	setupMetrics(grpcServer)
 
@@ -121,7 +118,7 @@ func main() {
 	}
 }
 
-func setup() (*zap.Logger, opentracing.Tracer) {
+func setup() *zap.Logger {
 	logger, err := logging.NewLogger(os.Getenv("ENV"))
 	if err != nil {
 		log.Fatalf("Cannot set up logger: %s", err.Error())
@@ -138,17 +135,10 @@ func setup() (*zap.Logger, opentracing.Tracer) {
 		}
 	}
 
-	tracer, err := tracing.NewTracer(App)
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-
-	tracing.SetTracer(tracer)
-
-	return logger, tracer
+	return logger
 }
 
-func getGRPCServerOpts(logger *zap.Logger, tracer opentracing.Tracer) []grpc.ServerOption {
+func getGRPCServerOpts(logger *zap.Logger) []grpc.ServerOption {
 	opts := []grpc.ServerOption{}
 
 	loggerOpts := []grpc_zap.Option{
@@ -157,7 +147,6 @@ func getGRPCServerOpts(logger *zap.Logger, tracer opentracing.Tracer) []grpc.Ser
 	}
 
 	opts = append(opts, grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-		grpc_opentracing.UnaryServerInterceptor(grpc_opentracing.WithTracer(tracer)),
 		grpc_prometheus.UnaryServerInterceptor,
 		grpc_zap.UnaryServerInterceptor(logger, loggerOpts...),
 	)))
@@ -165,9 +154,9 @@ func getGRPCServerOpts(logger *zap.Logger, tracer opentracing.Tracer) []grpc.Ser
 	return opts
 }
 
-func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption,healthServer *health.Server) *grpc.Server {
+func getGRPCServer(logger *zap.Logger, opts []grpc.ServerOption, healthServer *health.Server) *grpc.Server {
 	grpcServer := grpc.NewServer(opts...)
-	server.RegisterServices(grpcServer,healthServer)
+	server.RegisterServices(grpcServer, healthServer)
 
 	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
