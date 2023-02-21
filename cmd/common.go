@@ -96,6 +96,8 @@ type Metadata struct {
 	ArgoAppNamesProduction string            `yaml:"argoAppNamesProduction"`
 	ArgoAppNamesStaging    string            `yaml:"argoAppNamesStaging"`
 	SkipInstallTools       bool              `yaml:"skipInstallTools"`
+	GoVersion              string            `yaml:"goVersion,omitempty"`
+	AlpineVersion          string            `yaml:"alpineVersion,omitempty"`
 
 	Deploy Deploy `yaml:"deploy"`
 }
