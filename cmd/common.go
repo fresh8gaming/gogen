@@ -95,7 +95,6 @@ type Metadata struct {
 	Services               []MetadataService `yaml:"services"`
 	ArgoAppNamesProduction string            `yaml:"argoAppNamesProduction"`
 	ArgoAppNamesStaging    string            `yaml:"argoAppNamesStaging"`
-	SkipInstallTools       bool              `yaml:"skipInstallTools"`
 	GoVersion              string            `yaml:"goVersion,omitempty"`
 	AlpineVersion          string            `yaml:"alpineVersion,omitempty"`
 
