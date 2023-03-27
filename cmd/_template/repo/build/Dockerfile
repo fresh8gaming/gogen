@@ -1,6 +1,8 @@
 ARG VERSION="dev"
 ARG GO_VERSION=1.18
 ARG ALPINE_VERSION=3.17
+ARG TZDATA_VERSION=2023b-r1
+ARG CA_CERTIFICATE_VERSION=20220614-r4
 
 FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS builder
 
@@ -22,7 +24,10 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="${LD_FLAGS}" -a -o 
 
 FROM alpine:${ALPINE_VERSION} AS alpine-builder
 
-RUN apk update && apk add --no-cache ca-certificates=20220614-r4 tzdata=2022f-r1
+ARG TZDATA_VERSION
+ARG CA_CERTIFICATE_VERSION
+
+RUN apk update && apk add --no-cache ca-certificates=${CA_CERTIFICATE_VERSION} tzdata=${TZDATA_VERSION}
 RUN update-ca-certificates
 
 ENV USER=appuser
