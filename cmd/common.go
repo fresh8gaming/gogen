@@ -97,6 +97,8 @@ type Metadata struct {
 	ArgoAppNamesStaging    string            `yaml:"argoAppNamesStaging"`
 	GoVersion              string            `yaml:"goVersion,omitempty"`
 	AlpineVersion          string            `yaml:"alpineVersion,omitempty"`
+	TZDataVersion          string            `yaml:"tzDataVersion,omitempty"`
+	CaCertVersion          string            `yaml:"caCertVersion,omitempty"`
 
 	Deploy Deploy `yaml:"deploy"`
 }
