@@ -49,10 +49,10 @@ func createCrawlerCronService(args []string) {
 		log.Fatalf("%s is not a directory", absPath)
 	}
 
-	// argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "production.yaml")
-	// if _, err := os.Stat(argoApplicationFilePath); os.IsNotExist(err) {
-	// 	log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
-	// }
+	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "production.yaml")
+	if _, err := os.Stat(argoApplicationFilePath); os.IsNotExist(err) {
+		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
+	}
 
 	service := &Service{
 		Name:                  getName(Name, absPath),
@@ -64,7 +64,7 @@ func createCrawlerCronService(args []string) {
 
 	fmt.Printf("Creating %s in %s\n", blue(service.ServiceName), absPath)
 
-	// updateMetadata(absPath, service, "cron")
+	updateMetadata(absPath, service, "cron")
 
 	copyTemplates(absPath, CrawlerCronTemplates, service, crawlerCronContent, CrawlerCronTemplates, func(path string) string {
 		replaced := strings.ReplaceAll(path, "service-name", service.ServiceName)
@@ -72,7 +72,7 @@ func createCrawlerCronService(args []string) {
 		return replaced
 	})
 
-	// updatedArgo := updateArgoApplication(argoApplicationFilePath, "values-production", service)
+	updatedArgo := updateArgoApplication(argoApplicationFilePath, "values-production", service)
 
 	fmt.Printf("Created %s!\n", green(service.ServiceName))
 	fmt.Println()
@@ -84,15 +84,15 @@ func createCrawlerCronService(args []string) {
 	fmt.Println(blue("go mod vendor"))
 	fmt.Println()
 
-	// if updatedArgo {
-	// 	fmt.Println("It is recommended you commit and push at this point, then run the following:")
-	// 	fmt.Println()
-	// 	if updatedArgo {
-	// 		fmt.Println(blue("kubectl apply -f deploy/argocd/production.yaml"))
-	// 	}
-	// 	fmt.Println()
-	// } else {
-	// 	fmt.Println("It is recommended you commit and push at this point.")
-	// 	fmt.Println()
-	// }
+	if updatedArgo {
+		fmt.Println("It is recommended you commit and push at this point, then run the following:")
+		fmt.Println()
+		if updatedArgo {
+			fmt.Println(blue("kubectl apply -f deploy/argocd/production.yaml"))
+		}
+		fmt.Println()
+	} else {
+		fmt.Println("It is recommended you commit and push at this point.")
+		fmt.Println()
+	}
 }

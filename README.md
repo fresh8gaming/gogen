@@ -39,3 +39,23 @@ Or
 ```sh
 gogen service http /path/to/repo --name neat-service
 ```
+
+### Generate cron
+`gogen` can also generate code a basic cron service with its deploment with:
+
+```sh
+gogen service cron /path/to/repo --name neat-service
+```
+
+### Generate crawler cron
+`gogen` can also generate a feed crawler specific cron, where you can also specify weather this is an inplay crawler or not.
+
+```sh
+gogen service crawler-cron /path/to/repo --name neat-crawler
+```
+
+Or, for inplay.
+
+```sh
+gogen service crawler-cron /path/to/repo --name neat-crawler --inplay true
+```
