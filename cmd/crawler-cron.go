@@ -30,17 +30,17 @@ func runCrawlerCronCmd() func(cmd *cobra.Command, args []string) {
 }
 
 func createCrawlerCronService(args []string) {
-	if len(args) < 1 {
-		fmt.Println("insifficient arguments, requires at least name being set")
-		return
-	}
-	target := args[0]
-	if len(args) > 1 && args[1] == "true" {
-		isInplay = true
+	target := "."
+	if len(args) > 0 {
+		target = args[0]
 	}
 
 	absPath, err := filepath.Abs(target)
 	util.Fatal(err)
+
+	if len(args) > 1 && args[1] == "true" {
+		isInplay = true
+	}
 
 	if fileStat, err := os.Stat(absPath); os.IsNotExist(err) {
 		err := os.MkdirAll(absPath, os.ModePerm)
