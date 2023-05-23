@@ -24,6 +24,7 @@ type Service struct {
 	ServiceName           string
 	ServiceNameUnderscore string
 	ServiceNameProto      string
+	ServiceInplay         string
 }
 
 func runHTTPCmd() func(cmd *cobra.Command, args []string) {
