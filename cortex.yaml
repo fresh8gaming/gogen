@@ -1,0 +1,25 @@
+openapi: 3.0.1
+info:
+  title: gogen
+  description: gogen
+  x-cortex-git:
+    gitlab:
+      repository: ads/adsstaff/gogen
+  x-cortex-tag: adsstaff_gogen
+  x-cortex-type: service
+  x-cortex-groups:
+  - script
+  x-cortex-owners:
+  - type: group
+    name: ads-se
+    provider: CORTEX
+  x-cortex-domain-parents:
+  - tag: adsstaff
+  x-cortex-static-analysis:
+    sonarqube:
+      project: adsstaff_gogen
+  x-cortex-custom-metadata:
+    github: https://github.com/fresh8gaming/gogen
+    codebase-type:
+      type: script
+      description: https://sportradar.slack.com/archives/C02PFBUALP4/p1689156840940119
