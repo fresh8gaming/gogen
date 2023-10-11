@@ -70,16 +70,7 @@ func main() {
 		ReadTimeout:       time.Second * 15,
 		IdleTimeout:       time.Second * 30,
 		ReadHeaderTimeout: time.Second * 2,
-
-		// http.Handler that delegates to grpcServer on incoming gRPC connections or mux otherwise.
-		// Copied from https://github.com/philips/grpc-gateway-example/blob/master/cmd/serve.go#L49-L61
-		Handler: h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-				grpcServer.ServeHTTP(w, r)
-			} else {
-				mux.ServeHTTP(w, r)
-			}
-		}), &http2.Server{}),
+		Handler:           getHandler(grpcServer, mux),
 	}
 
 	logger.Info(fmt.Sprintf("starting grpc/http up on %s", httpServerEndpoint))
@@ -116,6 +107,18 @@ func main() {
 	if err := g.Wait(); err != nil {
 		logger.Info("exit happened", zap.Error(err))
 	}
+}
+
+// http.Handler that delegates to grpcServer on incoming gRPC connections or mux otherwise.
+// Copied from https://github.com/philips/grpc-gateway-example/blob/master/cmd/serve.go#L49-L61
+func getHandler(grpcServer *grpc.Server, mux *runtime.ServeMux) http.Handler {
+	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			mux.ServeHTTP(w, r)
+		}
+	}), &http2.Server{})
 }
 
 func setup() *zap.Logger {
