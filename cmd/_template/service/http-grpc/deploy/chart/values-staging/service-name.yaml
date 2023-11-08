@@ -13,7 +13,7 @@
   tlsEnabled: false
 
   profiler:
-    enabled: falsegi
+    enabled: false
     debug: false
 
   hpa:
