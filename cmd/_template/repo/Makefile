@@ -1,4 +1,4 @@
-export PATH := $(PWD)/bin:$(PATH)
+export PATH := "$(PWD)/bin:$(PATH)"
 export GOBIN := $(PWD)/bin
 
 lint:
