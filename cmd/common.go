@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fresh8gaming/gogen/internal/util"
+	"gitlab.sportradar.ag/ads/adsstaff/gogen/internal/util"
 
 	"github.com/icza/dyno"
 	yaml "gopkg.in/yaml.v2"

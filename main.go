@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/fresh8gaming/gogen/cmd"
+	"gitlab.sportradar.ag/ads/adsstaff/gogen/cmd"
 
 	"github.com/spf13/cobra"
 )

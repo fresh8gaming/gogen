@@ -12,7 +12,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/fresh8gaming/gogen/internal/util"
+	"gitlab.sportradar.ag/ads/adsstaff/gogen/internal/util"
 
 	"github.com/spf13/cobra"
 )

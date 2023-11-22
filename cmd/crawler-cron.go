@@ -11,7 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/fresh8gaming/gogen/internal/util"
+	"gitlab.sportradar.ag/ads/adsstaff/gogen/internal/util"
 )
 
 const CrawlerCronTemplates string = "_template/service/crawler-cron"

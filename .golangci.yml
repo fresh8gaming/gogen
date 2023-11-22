@@ -5,7 +5,7 @@ linters-settings:
     lines: 100
     statements: 50
   gci:
-    local-prefixes: github.com/fresh8gaming/gogen
+    local-prefixes: gitlab.sportradar.ag/ads/adsstaff/gogen
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -25,7 +25,7 @@ linters-settings:
   gocyclo:
     min-complexity: 15
   goimports:
-    local-prefixes: github.com/fresh8gaming/gogen
+    local-prefixes: gitlab.sportradar.ag/ads/adsstaff/gogen
   golint:
     min-confidence: 0
   gomnd:
@@ -83,7 +83,7 @@ linters:
     - gocognit
     - godox
     - nestif
- 
+
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:

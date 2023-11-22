@@ -1,4 +1,4 @@
-module github.com/fresh8gaming/gogen
+module gitlab.sportradar.ag/ads/adsstaff/gogen
 
 go 1.20
 
