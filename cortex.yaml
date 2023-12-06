@@ -1,0 +1,26 @@
+openapi: 3.0.1
+info:
+  title: gogen
+  description: Monorepo and service generator for Golang projects.
+
+  x-cortex-git:
+    gitlab:
+      repository: ads/adsstaff/gogen
+  x-cortex-tag: adsstaff_gogen
+
+  x-cortex-type: service
+
+  x-cortex-groups: 
+  - ads-se
+
+  x-cortex-owners:
+  - type: group
+    name: ads-se
+    provider: CORTEX
+    description: Part of ads-se squad.
+
+  x-cortex-domain-parents:
+  - tag: adsstaff
+  
+
+
