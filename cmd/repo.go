@@ -50,7 +50,6 @@ func GetRepoCmd() (*cobra.Command, error) {
 	var err error
 
 	cmdRepo.Flags().StringVarP(&Name, "name", "n", "", "Name of the monorepo (default to name of target directory)")
-	cmdRepo.Flags().StringVarP(&Org, "org", "o", "fresh8gaming", "Github org for the monorepo (defaults to fresh8gaming)")
 
 	cmdRepo.Flags().StringVarP(&Domain, "domain", "d", "", "Domain the monorepo relates to, also used for K8s namespace (required)")
 	err = cmdRepo.MarkFlagRequired("domain")
@@ -89,7 +88,6 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 			Name:   getName(Name, absPath),
 			Domain: Domain,
 			Team:   Team,
-			Org:    Org,
 		}
 
 		fmt.Printf("Creating %s at %s\n", blue(repo.Name), absPath)
@@ -101,17 +99,13 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		fmt.Println("Run the following commands to set up the project:")
 		fmt.Println()
 		fmt.Printf(blue("cd %s\n"), absPath)
-		fmt.Printf(blue("go mod init github.com/fresh8gaming/%s\n"), repo.Name)
+		modPath := fmt.Sprintf("gitlab.sportradar.ag/ads/%s/%s", repo.Team, repo.Name)
+		fmt.Printf(blue("go mod init %s\n"), modPath)
 		fmt.Println(blue("go mod tidy"))
 		fmt.Println(blue("go mod vendor"))
 		fmt.Println(blue("make install-tools"))
 		fmt.Println()
-		fmt.Println(yellow("Ensure that you are logged into the buf registry:"))
-		fmt.Println(blue("./bin/buf registry login"))
-		fmt.Println()
-		fmt.Println(yellow("Register the service with buf registry:"))
-		fmt.Printf(blue("./bin/buf beta registry repository create buf.build/%s/%s --visibility private\n"), repo.Org, repo.Name)
-		fmt.Println()
+
 	}
 }
 
