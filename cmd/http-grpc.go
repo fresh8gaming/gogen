@@ -98,8 +98,6 @@ func createHTTPGRPCService(args []string) {
 	fmt.Println()
 	fmt.Printf(blue("cd %s\n"), absPath)
 	fmt.Println(blue("go fmt ./..."))
-	fmt.Println(blue("make buf-mod-update"))
-	fmt.Println(blue("make buf-generate"))
 	fmt.Println(blue("go mod tidy"))
 	fmt.Println(blue("go mod vendor"))
 	fmt.Println()

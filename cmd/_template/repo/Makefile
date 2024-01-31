@@ -16,18 +16,6 @@ install-tools:
 	@echo Installing tools from tools.go
 	@cat tools/tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
 
-buf-generate:
-	buf generate
-
-buf-mod-update:
-	buf mod update
-
-buf-lint:
-	buf lint
-
-check-proto:
-	buf breaking --against '.git#branch=trunk'
-
 # Run docker build locally for debuging
 docker-build:
 	docker build --file build/$(DOCKERFILE) --tag $(APP):latest --tag $(APP):$(GIT_SHA) . --build-arg APP=$(APP) --build-arg VERSION=$(GIT_SHA)
