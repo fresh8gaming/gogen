@@ -58,7 +58,7 @@ func GetRepoCmd() (*cobra.Command, error) {
 	}
 
 	cmdRepo.Flags().StringVarP(&Team, "team", "t", "", "Team responsible for the monorepo (required), "+
-		"must be one of publisher|dmp|social|search")
+		"must be one of adspp|adssd|adssocial|adssearch|adsstaff")
 	err = cmdRepo.MarkFlagRequired("team")
 	if err != nil {
 		return nil, err
