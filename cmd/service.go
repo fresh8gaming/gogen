@@ -49,7 +49,12 @@ func GetServiceCmd() (*cobra.Command, error) {
 
 	var err error
 
-	cmdService.PersistentFlags().StringVarP(&Org, "org", "o", "fresh8gaming", "Github org for the monorepo (defaults to fresh8gaming)")
+	cmdService.PersistentFlags().StringVarP(&Team, "team", "t", "", "Team responsible for the monorepo (required), "+
+		"must be one of adspp|adssd|adssocial|adssearch|adsstaff")
+	err = cmdService.MarkPersistentFlagRequired("team")
+	if err != nil {
+		return nil, err
+	}
 
 	cmdService.PersistentFlags().StringVarP(&ServiceName, "name", "n", "", "Name of the service")
 	cmdCrawlerCron.Flags().BoolVarP(

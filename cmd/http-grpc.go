@@ -20,7 +20,7 @@ var httpGRPCContent embed.FS
 
 type Service struct {
 	Name                  string
-	Org                   string
+	Team                  string
 	ServiceName           string
 	ServiceNameUnderscore string
 	ServiceNameProto      string
@@ -68,7 +68,7 @@ func createHTTPGRPCService(args []string) {
 
 	service := &Service{
 		Name:                  getName(Name, absPath),
-		Org:                   Org,
+		Team:                  Team,
 		ServiceName:           ServiceName,
 		ServiceNameUnderscore: strings.ReplaceAll(ServiceName, "-", "_"),
 		ServiceNameProto:      strings.ReplaceAll(strings.ReplaceAll(ServiceName, "_", ""), "-", ""),

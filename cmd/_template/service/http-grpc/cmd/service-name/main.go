@@ -13,11 +13,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/metrics"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/profiling"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/{{ .ServiceName }}/server"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/logging"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/metrics"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/profiling"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/{{ .ServiceName }}/config"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/{{ .ServiceName }}/server"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"

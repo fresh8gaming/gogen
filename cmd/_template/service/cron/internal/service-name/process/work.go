@@ -3,7 +3,7 @@ package process
 import (
 	"context"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/logging"
 )
 
 func Work(ctx context.Context) {
