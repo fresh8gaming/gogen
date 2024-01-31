@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/logging"
 
 	"go.uber.org/zap"
 )
@@ -22,7 +22,7 @@ func StartServer(port string) {
 		Handler:           GetRouter(),
 	}
 
-	logger.Info("starting metrics on 9898", zap.String("port",port))
+	logger.Info("starting metrics on 9898", zap.String("port", port))
 
 	go func() {
 		if err := metricsServer.ListenAndServe(); err != nil {
@@ -30,4 +30,3 @@ func StartServer(port string) {
 		}
 	}()
 }
-

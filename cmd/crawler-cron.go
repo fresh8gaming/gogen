@@ -56,7 +56,7 @@ func createCrawlerCronService(args []string) {
 
 	service := &Service{
 		Name:                  getName(Name, absPath),
-		Org:                   Org,
+		Team:                  Team,
 		ServiceName:           ServiceName,
 		ServiceNameUnderscore: strings.ReplaceAll(ServiceName, "-", "_"),
 		ServiceInplay:         strconv.FormatBool(isInplay),

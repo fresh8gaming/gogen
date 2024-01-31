@@ -3,7 +3,7 @@ package metrics
 import (
 	"time"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/logging"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
