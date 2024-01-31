@@ -1,0 +1,5 @@
+.circleci/generated-config.yml
+.licenses
+.licensed.yml
+bin
+.vscode

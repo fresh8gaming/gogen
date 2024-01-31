@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: Test-GG-staging
+  namespace: argocd
+  labels:
+    team: dmp
+    domain: example
+    environment: staging
+  annotations:
+    notifications.argoproj.io/subscribe.record-deployment.engineering-metrics-deploy-count: "true"
+spec:
+  destination:
+    namespace: 'example-staging'
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: deploy/chart
+    repoURL: 'git@github.com:/Test-GG'
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values-staging.yaml
+  project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,25 @@
+version: 2.1
+
+setup: true
+
+orbs:
+  continuation: circleci/continuation@0.2.0
+
+jobs:
+  setup:
+    docker:
+      - image: cimg/go:1.20
+    steps:
+      - checkout
+      - run: curl -fsSL https://raw.githubusercontent.com/fresh8gaming/circlegen/trunk/install.sh | bash
+      - run: circlegen
+      - continuation/continue:
+          configuration_path: .circleci/generated-config.yml
+
+workflows:
+  setup:
+    jobs:
+      - setup:
+          context:
+            - fresh8bot
+            - artifact-registry

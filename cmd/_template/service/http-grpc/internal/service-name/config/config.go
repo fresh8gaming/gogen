@@ -3,8 +3,8 @@ package config
 import (
 	"flag"
 
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/env"
-	"github.com/{{ .Org }}/{{ .Name }}/internal/pkg/logging"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/env"
+	"gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}/internal/pkg/logging"
 
 	"go.uber.org/zap"
 )
