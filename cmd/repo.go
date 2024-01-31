@@ -105,7 +105,6 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		fmt.Println(blue("go mod vendor"))
 		fmt.Println(blue("make install-tools"))
 		fmt.Println()
-
 	}
 }
 
