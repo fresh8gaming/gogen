@@ -28,8 +28,8 @@ type Repo struct {
 
 //go:embed _template/repo/*
 //go:embed _template/repo/deploy/chart/templates/_helpers.tpl
-//go:embed _template/repo/.circleci/.whitesource
-//go:embed _template/repo/.circleci/.whitesource_setup.sh
+//go:embed _template/repo/.ci/blacklist.txt
+//go:embed _template/repo/.ci/config.yml
 var repoContent embed.FS
 
 var (
