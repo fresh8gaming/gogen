@@ -5,7 +5,10 @@ lint:
 	GOROOT=$(GOROOT) golangci-lint run --verbose -c .golangci.yml --timeout 300s
 
 test:
-	gotestsum -- -race ./...
+	gotestsum -- -race ./... -coverprofile coverage.out
+
+mutation-test:
+	go-mutesting --config=.ci/go-mutesting/config.yml --blacklist=.ci/go-mutesting/blacklist.txt ./...
 
 update-dependencies:
 	go get -u ./...
