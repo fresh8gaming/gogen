@@ -1,0 +1,43 @@
+stages:
+  - init
+  - build
+  - run
+
+gitlab-gogen:
+  stage: init
+  image:
+    name: gitlab.sportradar.ag:4567/ads/adsstaff/gitlab-gogen
+  script:
+    - gitlab-gogen
+    - cp /app/dev/templates/dynamic-gitlab-ci.yml dynamic-gitlab-ci.yml
+    - cat dynamic-gitlab-ci.yml
+  artifacts:
+    paths:
+      - dynamic-gitlab-ci.yml
+      - gitlab-gogen.yml
+
+build-dynamic-config:
+  stage: build
+  image:
+    name: gerritk/ytt:0.45
+    entrypoint: [""]
+  script:
+    - ytt --file ./dynamic-gitlab-ci.yml --data-values-file .metadata.yml --data-values-file gitlab-gogen.yml > generated-config.yml
+    - cat generated-config.yml
+  needs:
+    - gitlab-gogen
+  dependencies:
+    - gitlab-gogen
+  artifacts:
+    paths:
+      - generated-config.yml
+
+run-config:
+  stage: run
+  trigger:
+    include:
+      - artifact: generated-config.yml
+        job: build-dynamic-config
+    strategy: depend
+  needs:
+    - build-dynamic-config
