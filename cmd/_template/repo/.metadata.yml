@@ -1,3 +1,4 @@
+version: {{.Version}}
 name: {{.Name}}
 staging: true
 team: {{.Team}}

@@ -8,6 +8,13 @@ gitlab-gogen:
   image:
     name: gitlab.sportradar.ag:4567/ads/adsstaff/gitlab-gogen
   script:
+    - |
+      if [ -z "$GOGEN_VERSION" ]; then
+        VERSION=$(git describe --tags --always)
+      else
+        VERSION=$GOGEN_VERSION
+      fi
+    - sed -i "s/{{.Version}}/${VERSION}/" .metadata.yaml
     - gitlab-gogen
     - cp /app/dev/templates/dynamic-gitlab-ci.yml dynamic-gitlab-ci.yml
     - cat dynamic-gitlab-ci.yml
