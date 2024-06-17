@@ -14,7 +14,7 @@ gitlab-gogen:
       else
         VERSION=$GOGEN_VERSION
       fi
-    - sed -i "s/{{.Version}}/${VERSION}/" .metadata.yaml
+    - sed -i "s/{{.Version}}/${VERSION}/" .metadata.yml
     - gitlab-gogen
     - cp /app/dev/templates/dynamic-gitlab-ci.yml dynamic-gitlab-ci.yml
     - cat dynamic-gitlab-ci.yml
