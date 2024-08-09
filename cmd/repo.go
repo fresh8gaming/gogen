@@ -20,10 +20,11 @@ import (
 const RepoTemplates string = "_template/repo"
 
 type Repo struct {
-	Name   string
-	Team   string
-	Domain string
-	Org    string
+	Name    string
+	Team    string
+	Domain  string
+	Org     string
+	Version string
 }
 
 //go:embed _template/repo/*
@@ -39,12 +40,12 @@ var (
 	Org    string
 )
 
-func GetRepoCmd() (*cobra.Command, error) {
+func GetRepoCmd(version string) (*cobra.Command, error) {
 	var cmdRepo = &cobra.Command{
 		Use:   "repo",
 		Short: "",
 		Long:  "",
-		Run:   runRepoCmd(),
+		Run:   runRepoCmd(version),
 	}
 
 	var err error
@@ -67,7 +68,7 @@ func GetRepoCmd() (*cobra.Command, error) {
 	return cmdRepo, nil
 }
 
-func runRepoCmd() func(cmd *cobra.Command, args []string) {
+func runRepoCmd(version string) func(cmd *cobra.Command, args []string) {
 	return func(cmd *cobra.Command, args []string) {
 		target := "."
 		if len(args) > 0 {
@@ -85,9 +86,10 @@ func runRepoCmd() func(cmd *cobra.Command, args []string) {
 		}
 
 		repo := Repo{
-			Name:   getName(Name, absPath),
-			Domain: Domain,
-			Team:   Team,
+			Name:    getName(Name, absPath),
+			Domain:  Domain,
+			Team:    Team,
+			Version: version,
 		}
 
 		fmt.Printf("Creating %s at %s\n", blue(repo.Name), absPath)

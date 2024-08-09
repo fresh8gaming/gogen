@@ -17,7 +17,7 @@ var (
 )
 
 func main() {
-	cmdRepo, err := cmd.GetRepoCmd()
+	cmdRepo, err := cmd.GetRepoCmd(version)
 	if err != nil {
 		log.Fatal(err)
 	}
