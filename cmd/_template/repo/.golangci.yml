@@ -1,11 +1,21 @@
 linters-settings:
+  depguard:
+    rules:
+      prevent_unmaintained_packages:
+        list-mode: lax # allow unless explicitely denied
+        files:
+          - $all
+          - "!$test"
+        allow:
+          - $gostd
+        deny:
+          - pkg: io/ioutil
+            desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
   dupl:
     threshold: 100
   funlen:
     lines: 100
     statements: 50
-  gci:
-    local-prefixes: gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}
   goconst:
     min-len: 2
     min-occurrences: 2
@@ -24,18 +34,8 @@ linters-settings:
       - wrapperFunc
   gocyclo:
     min-complexity: 15
-  goimports:
-    local-prefixes: gitlab.sportradar.ag/ads/{{ .Team }}/{{ .Name }}
-
   golint:
     min-confidence: 0
-  gomnd:
-    settings:
-      mnd:
-        # don't include the "operation" and "assign"
-        checks: argument,case,condition,return
-  govet:
-    # check-shadowing: true
   lll:
     line-length: 140
   maligned:
@@ -52,25 +52,36 @@ linters-settings:
     allow-unused: false # report any unused nolint directives
     require-explanation: false # don't require an explanation for nolint directives
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+  gomodguard:
+    blocked:
+      # List of blocked modules.
+      # Default: []
+      modules:
+        - github.com/golang/protobuf:
+            recommendations:
+              - google.golang.org/protobuf
+            reason: "see https://developers.google.com/protocol-buffers/docs/reference/go/faq#modules"
+        - github.com/satori/go.uuid:
+            recommendations:
+              - github.com/google/uuid
+            reason: "satori's package is not maintained"
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
+    - depguard
     - asciicheck
     - unused
-    - depguard
+    - gomodguard
     - dogsled
     - errcheck
-    - exhaustive
     - gochecknoinits
     - goconst
     - gocritic
     - godot
     - gofmt
-    - goimports
-    - gomnd
     - goprintffuncname
     - gosec
     - govet
@@ -89,7 +100,7 @@ linters:
     - gocognit
     - godox
     - nestif
- 
+
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source
   exclude-rules:
@@ -102,15 +113,4 @@ issues:
     - linters:
         - gocritic
       text: "unnecessaryDefer:"
-
-run:
-  skip-dirs:
-    - test/testdata_etc
-    - internal/cache
-    - internal/renameio
-    - internal/robustio
-
-# golangci.com configuration
-# https://github.com/golangci/golangci/wiki/Configuration
-service:
-  golangci-lint-version: 1.51.1 # use the fixed version to not introduce new linters unexpectedly
+  exclude-dirs:
