@@ -93,14 +93,14 @@ type Metadata struct {
 	KubescoreEnabled       bool              `yaml:"kubescoreEnabled"`
 	CDEnabled              bool              `yaml:"cdEnabled"`
 	Services               []MetadataService `yaml:"services"`
-	ArgoAppNamesProduction string            `yaml:"argoAppNamesProduction"`
-	ArgoAppNamesStaging    string            `yaml:"argoAppNamesStaging"`
+	ArgoAppNamesProduction string            `yaml:"argoAppNamesProduction,omitempty"`
+	ArgoAppNamesStaging    string            `yaml:"argoAppNamesStaging,omitempty"`
 	GoVersion              string            `yaml:"goVersion,omitempty"`
 	AlpineVersion          string            `yaml:"alpineVersion,omitempty"`
 	TZDataVersion          string            `yaml:"tzDataVersion,omitempty"`
 	CaCertVersion          string            `yaml:"caCertVersion,omitempty"`
 
-	Deploy Deploy `yaml:"deploy"`
+	Deploy Deploy `yaml:"deploy,omitempty"`
 }
 
 type Deploy struct {
