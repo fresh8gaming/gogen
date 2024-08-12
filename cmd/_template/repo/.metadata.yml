@@ -2,6 +2,7 @@ version: {{.Version}}
 name: {{.Name}}
 staging: true
 team: {{.Team}}
+sonarqubeTeam: {{.Team}}
 domain: {{.Domain}}
 whitesourceEnabled: true
 cdEnabled: false

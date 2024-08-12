@@ -88,6 +88,7 @@ type Metadata struct {
 	Name                   string            `yaml:"name"`
 	Staging                bool              `yaml:"staging"`
 	Team                   string            `yaml:"team"`
+	SonarqubeTeam          string            `yaml:"sonarqubeTeam"`
 	Domain                 string            `yaml:"domain"`
 	WhitesourceEnabled     bool              `yaml:"whitesourceEnabled"`
 	KubescoreEnabled       bool              `yaml:"kubescoreEnabled"`
