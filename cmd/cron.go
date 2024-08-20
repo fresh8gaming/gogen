@@ -40,17 +40,6 @@ func createCronService(args []string) {
 		log.Fatalf("%s is not a directory", absPath)
 	}
 
-	argoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "production.yaml")
-	if _, err := os.Stat(argoApplicationFilePath); os.IsNotExist(err) {
-		log.Fatalf("argocd application file expected at %s", argoApplicationFilePath)
-	}
-	stagingExists := true
-	stagingArgoApplicationFilePath := filepath.Join(absPath, "deploy", "argocd", "staging.yaml")
-	if _, err := os.Stat(stagingArgoApplicationFilePath); os.IsNotExist(err) {
-		stagingExists = false
-		log.Printf("staging argocd application file expected at %s", argoApplicationFilePath)
-	}
-
 	service := &Service{
 		Name:                  getName(Name, absPath),
 		Team:                  Team,
@@ -68,13 +57,6 @@ func createCronService(args []string) {
 		return replaced
 	})
 
-	updatedArgo := updateArgoApplication(argoApplicationFilePath, "values-production", service)
-
-	var updatedStagingArgo bool
-	if stagingExists {
-		updatedStagingArgo = updateArgoApplication(stagingArgoApplicationFilePath, "values-staging", service)
-	}
-
 	fmt.Printf("Created %s!\n", green(service.ServiceName))
 	fmt.Println()
 	fmt.Println("Run the following commands to set up the project:")
@@ -85,18 +67,6 @@ func createCronService(args []string) {
 	fmt.Println(blue("go mod vendor"))
 	fmt.Println()
 
-	if updatedArgo || updatedStagingArgo {
-		fmt.Println("It is recommended you commit and push at this point, then run the following:")
-		fmt.Println()
-		if updatedArgo {
-			fmt.Println(blue("kubectl apply -f deploy/argocd/production.yaml"))
-		}
-		if updatedStagingArgo {
-			fmt.Println(blue("kubectl apply -f deploy/argocd/staging.yaml"))
-		}
-		fmt.Println()
-	} else {
-		fmt.Println("It is recommended you commit and push at this point.")
-		fmt.Println()
-	}
+	fmt.Println("It is recommended you commit and push at this point.")
+	fmt.Println()
 }
