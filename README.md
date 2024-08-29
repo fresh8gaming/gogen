@@ -1,6 +1,10 @@
-# gogen
+# GoGen
 
-Monorepo and service generator for Golang projects.
+Monorepo and service generator for Golang projects. It has been updated to work with Gitlab. If there are any missing features, please [create a ticket in the DTP project in Jira](https://jira.sportradar.ag/secure/RapidBoard.jspa?rapidView=6464&projectKey=DTP&view=planning.nodetail&issueLimit=100#), using the AD:S DevOps Ticket template.
+
+This project is a binary that is installed locally, and will template an opinionated Golang project for you. It uses [Gitlab GoGen](https://gitlab.sportradar.ag/ads/adsstaff/gitlab-gogen) to automatically generate CI/CD pipelines based on configuration within the project.
+
+If you would like further details, please refer to the [Knowledge Base](https://ads.pages.sportradar.ag/adsstaff/knowledge-base/Reference/Gogen).
 
 ## Install
 
