@@ -1,3 +1,5 @@
+# This file is used by Gitlab GoGen to customise the dynamic pipeline.
+# For additional information about available options, please see https://gitlab.sportradar.ag/ads/adsstaff/gitlab-gogen
 version: {{.Version}}
 name: {{.Name}}
 staging: true
