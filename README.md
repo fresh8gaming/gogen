@@ -28,6 +28,10 @@ wget -q https://raw.githubusercontent.com/fresh8gaming/gogen/trunk/install.sh -O
 gogen repo /path/to/repo --team dmp --domain example
 ```
 
+#### WARNING!
+
+GoGen repo creation is ***not*** meant to be run over an existing repo. It is used to create a ***new repository ONLY***.
+
 ### Generate gRPC/HTTP Service
 
 `gogen` does not distinguish between gRPC and HTTP services, but provides both as entry points to give you a false sense
